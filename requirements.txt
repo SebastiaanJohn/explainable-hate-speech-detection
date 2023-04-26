@@ -5,3 +5,5 @@ transformers
 tqdm
 jupyter
 datasets
+openai
+backoff

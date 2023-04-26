@@ -15,3 +15,5 @@ dependencies:
     - tqdm
     - jupyter
     - datasets
+    - openai
+    - backoff
