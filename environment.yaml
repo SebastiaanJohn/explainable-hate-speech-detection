@@ -14,3 +14,4 @@ dependencies:
     - transformers
     - tqdm
     - jupyter
+    - datasets

@@ -4,3 +4,4 @@ torchtext
 transformers
 tqdm
 jupyter
+datasets
