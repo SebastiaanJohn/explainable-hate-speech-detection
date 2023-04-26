@@ -1,12 +1,15 @@
 """GPT API wrapper."""
 
 import logging
+import os
 
 import backoff
 import openai
 
 
-API_KEY = ""
+# get api key from environment variable
+
+API_KEY = os.getenv("OPENAI_API_KEY")
 
 @backoff.on_exception(
     backoff.expo,
