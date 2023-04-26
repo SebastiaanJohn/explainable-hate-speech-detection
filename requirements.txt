@@ -1,0 +1,6 @@
+ruff
+torch
+torchtext
+transformers
+tqdm
+jupyter
