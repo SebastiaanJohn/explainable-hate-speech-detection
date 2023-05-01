@@ -7,3 +7,4 @@ jupyter
 datasets
 openai
 backoff
+scikit-learn

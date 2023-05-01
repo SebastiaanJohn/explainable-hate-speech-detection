@@ -5,12 +5,13 @@ import logging
 from datasets import Dataset, load_dataset
 
 
-def get_social_bias_dataset(split: str = "train") -> Dataset:
+def get_social_bias_dataset(split: str = "train", subset: int | None = None) -> Dataset:
     """Returns the social bias dataset.
 
     Args:
         split (str): The split of the dataset to return. Must be one of 'train',
         'validation', or 'test'. Defaults to 'train'.
+        subset (int, optional): The number of examples to return. Defaults to None.
 
     Returns:
         Dataset: The social bias dataset.
@@ -19,7 +20,10 @@ def get_social_bias_dataset(split: str = "train") -> Dataset:
         error = f"Invalid split: {split}. Must be one of 'train', 'validation', or 'test'."
         raise ValueError(error)
 
-    logging.info(f"Loading social bias dataset split: {split}...")
+    logging.info(f"Loading Social Bias dataset split: {split}...")
+    if subset is not None:
+        logging.info(f"Only using {subset} examples.")
+        split = f"{split}[:{subset}]"
     dataset = load_dataset("social_bias_frames", split=split)
 
     # We want to filter out '' from the dataset (2017 examples).
