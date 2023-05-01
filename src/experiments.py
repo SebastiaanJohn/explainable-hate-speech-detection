@@ -16,7 +16,7 @@ label_tokens = get_label_token_ids(tokenizer)
 print(label_tokens)
 
 prompt = 'RT @_LexC__: I\'m convinced that some of y\'all bitches get pregnant purposely because "birth control &amp; plan b pills" are effective &#128533;&#128056;&#9749;&#65039;'
-sentence = f"{prompt}\nIs this post hateful?"
+sentence = f"{prompt}\nIs this post hateful? (yes/no):"
 input_ids = tokenizer(sentence, return_tensors="pt").input_ids
 
 outputs = model.generate(
@@ -28,15 +28,9 @@ outputs = model.generate(
     output_scores=True
     )
 
-print(len(outputs.scores))
-print(outputs.scores[19].shape)
-print(outputs.sequences)
-
-
 transition_scores = model.compute_transition_scores(
     outputs.sequences, outputs.scores, outputs.beam_indices, normalize_logits=False
 )
 
 text = tokenizer.batch_decode(outputs.sequences, skip_special_tokens=True)
 
-print(text)
