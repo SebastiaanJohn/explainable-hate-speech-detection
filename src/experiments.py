@@ -4,17 +4,6 @@ from transformers import AutoModelForSeq2SeqLM, AutoTokenizer
 tokenizer = AutoTokenizer.from_pretrained("MBZUAI/LaMini-T5-61M")
 model = AutoModelForSeq2SeqLM.from_pretrained("MBZUAI/LaMini-T5-61M")
 
-def get_label_token_ids(tokenizer) -> dict:
-    """Returns the token ids for each label."""
-    label_to_token = {}
-    for label in ["yes", "Yes", "YES", "no", "No", "NO"]:
-        label_to_token[label] = tokenizer(label, return_tensors="pt").input_ids[0][0]
-
-    return label_to_token
-
-label_tokens = get_label_token_ids(tokenizer)
-print(label_tokens)
-
 prompt = 'RT @_LexC__: I\'m convinced that some of y\'all bitches get pregnant purposely because "birth control &amp; plan b pills" are effective &#128533;&#128056;&#9749;&#65039;'
 sentence = f"{prompt}\nIs this post hateful? (yes/no):"
 input_ids = tokenizer(sentence, return_tensors="pt").input_ids
