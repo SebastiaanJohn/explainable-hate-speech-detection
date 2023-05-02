@@ -15,8 +15,8 @@ def get_response(input_prompt: str, model: str) -> str:
         str: The response from the model.
     """
     checkpoint = f"MBZUAI/{model}"
-    model = pipeline('text2text-generation', model = checkpoint)
+    model = pipeline("text2text-generation", model=checkpoint)
 
-    return model(input_prompt, max_length=512, do_sample=True)[0]['generated_text']
-
-
+    return model(input_prompt, max_length=512, do_sample=True)[0][
+        "generated_text"
+    ]

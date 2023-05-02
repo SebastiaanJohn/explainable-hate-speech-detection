@@ -11,22 +11,29 @@ import openai
 
 API_KEY = os.getenv("OPENAI_API_KEY")
 
+
 @backoff.on_exception(
     backoff.expo,
     openai.error.RateLimitError,
-    on_backoff=lambda details: logging.error("API Error, %s", details["exception"]),
+    on_backoff=lambda details: logging.error(
+        "API Error, %s", details["exception"]
+    ),
     base=0.2,
 )
 @backoff.on_exception(
     backoff.expo,
     openai.error.ServiceUnavailableError,
-    on_backoff=lambda details: logging.error("API Error, %s", details["exception"]),
+    on_backoff=lambda details: logging.error(
+        "API Error, %s", details["exception"]
+    ),
     base=0.2,
 )
 @backoff.on_exception(
     backoff.expo,
     openai.error.APIError,
-    on_backoff=lambda details: logging.error("API Error, %s", details["exception"]),
+    on_backoff=lambda details: logging.error(
+        "API Error, %s", details["exception"]
+    ),
     base=0.2,
 )
 def get_completion(
