@@ -21,3 +21,4 @@ dependencies:
     - backoff
     - scikit-learn
     - numpy
+    - tabulate

@@ -1,26 +1,18 @@
 """This script is used to download and process the dataset."""
 
+import argparse
 import logging
 
 from datasets import Dataset, load_dataset
 
 
-def get_social_bias_dataset(
-    split: str,
-    minimum_preds: int = 0,
-    num_workers: int = 0,
-) -> Dataset:
+def get_social_bias_dataset(split: str, num_workers: int = 0) -> Dataset:
     """
-    Returns the social bias dataset.
+    Returns the Social Bias Frames dataset.
 
     Args:
-        split (str): The split of the dataset to use. Must be one of "train",
+        split (str): The split of the dataset to load. Must be one of "train",
             "validation", or "test".
-        minimum_preds (int, optional): The minimum amount of predictions that
-            should be generated. If the cache file already contains some of
-            these predictions, the model will continue generating predictions
-            until the minimum amount is reached. If 0, all predictions will be
-            generated. Defaults to 0.
         num_workers (int, optional): Number of workers to use for data loading.
             If set to 0, no multiprocessing will be used. Defaults to 0.
 
@@ -35,22 +27,8 @@ def get_social_bias_dataset(
             "'validation', or 'test'."
         )
 
-    # Check whether the split contains at least the minimum amount of
-    # predictions we want to generate. If not, we will warn the user and
-    # change the minimum to the size of the split.
-    if minimum_preds != 0:
-        dataset = load_dataset("social_bias_frames", split=split)
-        if dataset.num_rows < minimum_preds:
-            logging.warning(
-                f"Split '{split}' contains less than {minimum_preds} "
-                f"examples. Changing minimum_preds to {dataset.num_rows}."
-            )
-            minimum_preds = dataset.num_rows
-        logging.info(f"Only using {minimum_preds} examples.")
-        split += f"[:{minimum_preds}]"
-
-    # Load the dataset split.
-    logging.info(f"Loading Social Bias dataset split: {split}...")
+    # Load the dataset.
+    logging.info(f"Loading 'Social Bias Frames' {split} split...")
     dataset = load_dataset(
         "social_bias_frames",
         split=split,
@@ -59,6 +37,7 @@ def get_social_bias_dataset(
 
     # We only want to keep the "post" and "offensiveYN" and remove the rest.
     # Perform this operation first to speed up future operations.
+    logging.info("Filtering out unnecessary columns...")
     dataset = dataset.remove_columns(
         [
             "whoTarget",
@@ -98,23 +77,48 @@ def get_social_bias_dataset(
     )
 
     # Count how many examples are in each class.
-    count_yes = dataset.filter(
-        lambda example: example["offensiveYN"] == "yes"
-    ).num_rows
-    count_no = dataset.filter(
-        lambda example: example["offensiveYN"] == "no"
-    ).num_rows
-    logging.info(
-        "Number of examples with labels: "
-        f"'yes': {count_yes}, 'no': {count_no}"
-    )
-
-    logging.info("Done loading social bias dataset.")
+    for label in sorted(set(id_to_label.values())):
+        count_label = dataset.filter(
+            lambda example: example["offensiveYN"] == label
+        ).num_rows
+        logging.info(f"Number of examples with label '{label}': {count_label}")
+    logging.info(f"Total number of examples: {dataset.num_rows}")
 
     return dataset
 
 
+def main(args: argparse.Namespace):
+    dataset = get_social_bias_dataset(args.split, num_workers=args.num_workers)
+    logging.info(f"{next(iter(dataset))=}")
+
+
 if __name__ == "__main__":
-    logging.basicConfig(level=logging.INFO)
-    dataset = get_social_bias_dataset("train")
-    print(f"{dataset[0]=}")
+    # Set up logging.
+    logging.basicConfig(
+        level=logging.INFO,
+        format="%(asctime)s %(levelname)s %(message)s",
+        datefmt="%H:%M:%S",
+    )
+
+    # Create the argument parser.
+    parser = argparse.ArgumentParser()
+
+    # Optional parameters.
+    parser.add_argument(
+        "--split",
+        type=str,
+        choices=["train", "val", "test"],
+        default="test",
+        help="Split to evaluate on. Defaults to 'test'.",
+    )
+    parser.add_argument(
+        "--num_workers",
+        type=int,
+        default=8,
+        help="Number of workers to use for data loading. If set to 0, "
+        "no multiprocessing will be used. Defaults to 8.",
+    )
+
+    # Parse the arguments.
+    args = parser.parse_args()
+    main(args)

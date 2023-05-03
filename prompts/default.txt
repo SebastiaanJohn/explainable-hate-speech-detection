@@ -1,1 +1,1 @@
-Is this post hateful?
+Is this post hateful? Answer with "A: yes" or "A: no".

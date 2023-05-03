@@ -1,4 +1,5 @@
 ruff
+black
 torch
 torchtext
 transformers
@@ -8,3 +9,5 @@ datasets
 openai
 backoff
 scikit-learn
+numpy
+tabulate
