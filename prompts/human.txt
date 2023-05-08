@@ -1,0 +1,6 @@
+Could this post be considered offensive, disrespectful, or
+toxic to anyone/someone?
+Answer with "yes" or "no". Do not explain your answer.
+
+Post: ${post}
+Answer:

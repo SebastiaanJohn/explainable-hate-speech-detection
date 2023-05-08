@@ -1,1 +1,5 @@
-Is this post hateful? Answer with "A: yes" or "A: no".
+Is the following post hateful?
+Answer with "yes" or "no". Do not explain your answer.
+
+Post: ${post}
+Answer:
