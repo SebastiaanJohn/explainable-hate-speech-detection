@@ -6,9 +6,9 @@ import pickle
 import re
 from collections import defaultdict
 
+import transformers
 from datasets import Dataset
 from tqdm import tqdm
-from transformers import pipeline
 
 
 PROMPTS_DIR = "./prompts"
@@ -58,9 +58,9 @@ def determine_preds_cache_location(
     # and prompt.
     safe_model = safeguard_filename(model)
     safe_split = safeguard_filename(split)
-    # `match.group(0)` is the cache file name.
-    # `match.group(1)` is prompt identifier.
-    # `match.group(2)` is the amount of predictions that have been generated.
+    # match.group(0) is the cache file name.
+    # match.group(1) is prompt identifier.
+    # match.group(2) is the amount of predictions that have been generated.
     matches_all = [
         re.fullmatch(
             f"model={safe_model}_split={safe_split}_"
@@ -286,8 +286,8 @@ def generate_predictions(
     # Determine the cache location.
     # The predictions are retrieved from a cache file if it already exists.
     # This cache file is a pickle file that contains a dictionary with:
-    #     - "prompt": The prompt used to generate the predictions.
-    #     - "predictions": A list of prediction strings.
+    # - "prompt": The prompt used to generate the predictions.
+    # - "predictions": A list of prediction strings.
     # A pickle file is used in favour of a "more readable" text file because
     # both the prompt and the predictions can contain newlines or even empty
     # lines, which would make it difficult to parse a text file.
@@ -331,7 +331,20 @@ def generate_predictions(
             "The prompt must contain the string '${post}' to indicate where "
             "the post should be inserted."
         )
-    for response in pipeline("text2text-generation", model=f"MBZUAI/{model}")(
+    pipe = transformers.pipeline(model=f"MBZUAI/{model}")
+    # Check if the pipeline task is supported.
+    supported_tasks = (
+        transformers.pipelines.Text2TextGenerationPipeline,
+        transformers.pipelines.TextGenerationPipeline,
+    )
+    if not isinstance(pipe, supported_tasks):
+        raise ValueError(
+            "The pipeline task should be one of "
+            + ", ".join(f"'{task.__name__}'" for task in supported_tasks)
+            + f", but '{type(pipe).__name__}' was found."
+        )
+    logging.info(f"Pipeline task is '{type(pipe).__name__}'")
+    for response in pipe(
         iter(
             tqdm(
                 (
@@ -341,7 +354,9 @@ def generate_predictions(
                 initial=select[0],
                 total=select[1],
             )
-        )
+        ),
+        max_length=1024,
+        pad_token_id=50256,  # To suppress warnings.
     ):
         predictions.append(response[0]["generated_text"])
 
@@ -378,8 +393,8 @@ def load_predictions(
     # Determine the cache location.
     # The predictions are retrieved from a cache file if it already exists.
     # This cache file is a pickle file that contains a dictionary with:
-    #     - "prompt": The prompt used to generate the predictions.
-    #     - "predictions": A list of prediction strings.
+    # - "prompt": The prompt used to generate the predictions.
+    # - "predictions": A list of prediction strings.
     # A pickle file is used in favour of a "more readable" text file because
     # both the prompt and the predictions can contain newlines or even empty
     # lines, which would make it difficult to parse a text file.
