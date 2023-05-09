@@ -5,8 +5,11 @@ import logging
 import os
 
 import torch
-from data.get_dataset import get_social_bias_dataset
 from datasets import Dataset
+
+
+# isort: off
+from data.get_dataset import get_social_bias_dataset
 from eval import evaluate, extract_labels, show_metrics
 from utils import (
     PREDS_CACHE_DIR,
@@ -15,12 +18,13 @@ from utils import (
     load_predictions,
 )
 
+# isort: on
+
 
 def show_preds(
     prompt: str, dataset: Dataset, predictions: list[str], show_preds: int = 0
 ) -> None:
-    """
-    Show a subset of the predictions.
+    """Show a subset of the predictions.
 
     Args:
         prompt (str): The prompt used to generate the predictions.
@@ -53,8 +57,7 @@ def show_preds(
 
 
 def main(args: argparse.Namespace) -> None:
-    """
-    Main function for the evaluation script.
+    """Main function for the evaluation script.
 
     Args:
         args (argparse.Namespace): The command line arguments.

@@ -1,0 +1,54 @@
+{
+    "Is the following post hateful?": [
+        {
+            "perplexity": 5.750994693030515e-10,
+            "para_prompt": "Is the following post hateful?"
+        },
+        {
+            "perplexity": 6.371259114727441e-10,
+            "para_prompt": "Is this post expressing hatred?"
+        },
+        {
+            "perplexity": 2.3365344724801152e-09,
+            "para_prompt": "Does this post contain hate?"
+        },
+        {
+            "perplexity": 1.5107421622169257e-08,
+            "para_prompt": "Is this post filled with hate?"
+        },
+        {
+            "perplexity": 3.9612886300185885e-08,
+            "para_prompt": "Does this post contain hateful content?"
+        },
+        {
+            "perplexity": 7.85279135632206e-08,
+            "para_prompt": "Does this post contain hate speech?"
+        },
+        {
+            "perplexity": 2.4301325233132837e-07,
+            "para_prompt": "Does this post contain any hateful content?"
+        }
+    ],
+    "Could this post be considered offensive, disrespectful, or toxic to anyone/someone?": [
+        {
+            "perplexity": 3.281917383589699e-05,
+            "para_prompt": "Is this post likely to cause offense, disrespect, or toxicity to anyone?"
+        },
+        {
+            "perplexity": 3.583355887136039e-05,
+            "para_prompt": "Is this post likely to cause offense, disrespect, or toxicity to anyone/someone?"
+        },
+        {
+            "perplexity": 3.646081903164521e-05,
+            "para_prompt": "Could this post be considered offensive, disrespectful, or toxic to anyone/someone?"
+        },
+        {
+            "perplexity": 4.1964118762275974e-05,
+            "para_prompt": "Is this post likely to cause offense, disrespect, or toxicity to any person?"
+        },
+        {
+            "perplexity": 0.00011474087546362418,
+            "para_prompt": "Is this post likely to be seen as offensive, disrespectful, or toxic to anyone/someone?"
+        }
+    ]
+}

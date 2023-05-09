@@ -10,9 +10,13 @@ import torch
 from datasets import Dataset
 from sklearn.metrics import accuracy_score
 from tabulate import tabulate
-from utils import PREDS_CACHE_DIR, PROMPTS_DIR, generate_predictions
 
+
+# isort: off
+from utils import PREDS_CACHE_DIR, PROMPTS_DIR, generate_predictions
 from data.get_dataset import get_social_bias_dataset
+
+# isort: on
 
 
 def classify(prediction: str, labels: set[str]) -> str:
@@ -210,22 +214,22 @@ if __name__ == "__main__":
             "LaMini-Cerebras-256M",
             "LaMini-Cerebras-590M",
             "LaMini-Cerebras-1.3B",
-            "LaMini-GPT-774M",
             "LaMini-GPT-124M",
+            "LaMini-GPT-774M",
             "LaMini-GPT-1.5B",
             "LaMini-Neo-125M",
             "LaMini-Neo-1.3B",
-            "LaMini-Flan-T5-783M",
-            "LaMini-Flan-T5-248M",
             "LaMini-Flan-T5-77M",
-            "LaMini-T5-738M",
-            "LaMini-T5-223M",
+            "LaMini-Flan-T5-248M",
+            "LaMini-Flan-T5-783M",
             "LaMini-T5-61M",
+            "LaMini-T5-223M",
+            "LaMini-T5-738M",
             "bactrian-x-7b-lora",
+            "swiftformer-xs",
+            "swiftformer-s",
             "swiftformer-l1",
             "swiftformer-l3",
-            "swiftformer-s",
-            "swiftformer-xs",
         ],
         help="The name of the model to evaluate.",
     )

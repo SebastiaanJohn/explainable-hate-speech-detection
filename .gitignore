@@ -167,4 +167,5 @@ tensorboard.sh
 *.pdf
 
 # Project-specific files (e.g. datasets, models, etc.)
-data/preds_cache/
+/data/
+!/data/.gitkeep
