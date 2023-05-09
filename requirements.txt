@@ -11,3 +11,4 @@ backoff
 scikit-learn
 numpy
 tabulate
+betterprompt

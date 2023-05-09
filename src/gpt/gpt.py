@@ -37,7 +37,7 @@ API_KEY = os.getenv("OPENAI_API_KEY")
 )
 def get_completion(
     prompt: str,
-    model: str,
+    model: str = "text-davinci-003",
     temperature: float = 0.0,
     max_tokens: int = 0,
     top_p: float = 0.0,

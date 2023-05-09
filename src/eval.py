@@ -7,16 +7,16 @@ import re
 
 import numpy as np
 import torch
-from data.get_dataset import get_social_bias_dataset
 from datasets import Dataset
 from sklearn.metrics import accuracy_score
 from tabulate import tabulate
 from utils import PREDS_CACHE_DIR, PROMPTS_DIR, generate_predictions
 
+from data.get_dataset import get_social_bias_dataset
+
 
 def classify(prediction: str, labels: set[str]) -> str:
-    """
-    Extract the label from the response.
+    """Extract the label from the response.
 
     Args:
         response (str): The response from the model.
@@ -54,8 +54,7 @@ def classify(prediction: str, labels: set[str]) -> str:
 def extract_labels(
     dataset: Dataset, predictions: list[str]
 ) -> tuple[list[str], list[str]]:
-    """
-    Extract the predicted and ground truth labels from the dataset.
+    """Extract the predicted and ground truth labels from the dataset.
 
     Args:
         dataset (Dataset): The dataset to extract the labels from.
@@ -76,8 +75,7 @@ def extract_labels(
 def confusion_matrix(
     labels_true: list[int], labels_pred: list[int]
 ) -> tuple[np.ndarray, list[str]]:
-    """
-    Compute the confusion matrix.
+    """Compute the confusion matrix.
 
     Args:
         labels_true (list[int]): The true labels.
@@ -108,8 +106,7 @@ def confusion_matrix(
 
 
 def evaluate(dataset: Dataset, predictions: list[str]) -> dict:
-    """
-    Evaluate the generated predictions on the dataset.
+    """Evaluate the generated predictions on the dataset.
 
     Args:
         dataset (Dataset): The dataset to evaluate the model on.
@@ -134,8 +131,7 @@ def evaluate(dataset: Dataset, predictions: list[str]) -> dict:
 
 
 def show_metrics(metrics: dict) -> None:
-    """
-    Show the metrics produced by the evaluation function.
+    """Show the metrics produced by the evaluation function.
 
     Args:
         metrics (dict): The metrics produced by the evaluation function.
@@ -152,8 +148,7 @@ def show_metrics(metrics: dict) -> None:
 
 
 def main(args: argparse.Namespace) -> None:
-    """
-    Main function for the evaluation script.
+    """Main function for the evaluation script.
 
     Args:
         args (argparse.Namespace): The command line arguments.
