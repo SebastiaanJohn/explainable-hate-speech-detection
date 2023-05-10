@@ -153,7 +153,8 @@ tb_logs/
 # ############################# PROJECT-SPECIFIC ##############################
 
 # Lisa Slurm job and output files
-slurm
+/slurm/*
+!/slurm/job/
 
 # Lisa help files
 startenv.sh

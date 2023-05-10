@@ -88,7 +88,7 @@ def main(args: argparse.Namespace) -> None:
     show_preds(prompt, dataset, predictions, show_preds=args.show_preds)
 
     # Evaluate the model.
-    metrics = evaluate(dataset, predictions)
+    metrics = evaluate(args.model, dataset, predictions)
 
     # Show the metrics.
     show_metrics(metrics)
