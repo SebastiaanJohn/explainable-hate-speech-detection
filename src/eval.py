@@ -3,7 +3,6 @@
 import argparse
 import logging
 import os
-import re
 
 import numpy as np
 import torch
@@ -13,46 +12,10 @@ from tabulate import tabulate
 
 
 # isort: off
-from utils import PREDS_CACHE_DIR, PROMPTS_DIR, generate_predictions
+from utils import classify, PREDS_CACHE_DIR, PROMPTS_DIR, generate_predictions
 from data.get_dataset import get_social_bias_dataset
 
 # isort: on
-
-
-def classify(prediction: str, labels: set[str]) -> str:
-    """Extract the label from the response.
-
-    Args:
-        response (str): The response from the model.
-        labels (set[str]): The set of possible labels.
-
-    Returns:
-        str: A label in the given set of labels, or an alternative string if
-            a fitting label could not be found. These alternative strings can
-            be useful for getting insight into the model's outputs.
-    """
-    prediction = prediction.lower()
-
-    # if re.search(r"\bfoo\b", prediction) is not None:
-    #     return "yes"
-    # if re.search(r"\bbar\b", prediction) is not None:
-    #     return "no"
-
-    labels_in_prediction = set()
-    for label in labels:
-        if re.search(rf"\b{label.lower()}\b", prediction.lower()) is not None:
-            labels_in_prediction.add(label)
-
-    # Single label in prediction.
-    if len(labels_in_prediction) == 1:
-        return labels_in_prediction.pop()
-
-    # Multiple labels in prediction.
-    if len(labels_in_prediction) > 1:
-        return "/".join(sorted(labels_in_prediction))
-
-    # No labels in prediction (`len(labels_in_prediction) == 0`).
-    return "None"
 
 
 def extract_labels(
@@ -182,6 +145,7 @@ def main(args: argparse.Namespace) -> None:
         prompt,
         dataset,
         min_preds=args.min_preds,
+        show_preds=args.show_preds,
         preds_cache_dir=args.preds_cache_dir,
         save_every=args.save_every,
     )
@@ -261,6 +225,13 @@ if __name__ == "__main__":
         "the cache file already contains some of these predictions, the model "
         "will continue generating predictions until the minimum amount is "
         "reached. If 0, all predictions will be generated. Defaults to 0.",
+    )
+    parser.add_argument(
+        "--show_preds",
+        type=int,
+        default=0,
+        help="The number of generated predictions that should be shown. "
+        "Defaults to 0.",
     )
     parser.add_argument(
         "--num_workers",

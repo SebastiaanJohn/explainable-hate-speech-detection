@@ -21,9 +21,10 @@ module load Anaconda3/2021.05
 source activate CoT-XAI-HateSpeechDetection
 
 cd $HOME/CoT-XAI-HateSpeechDetection
-srun python3 src/eval.py --model {args.model}
+srun python3 src/eval.py --model {args.model} --show_preds 10
 
-echo \"Job finished fully.\""""
+echo \"Job finished fully.\"
+"""
     print(sh_file)
 
     # Create the job file.

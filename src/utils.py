@@ -33,7 +33,7 @@ def safeguard_filename(filename: str) -> str:
 def determine_preds_cache_location(
     model: str, split: str, prompt: str, preds_cache_dir: str = PREDS_CACHE_DIR
 ) -> str:
-    f"""Determines the cache location where the predictions should be stored.
+    """Determines the cache location where the predictions should be stored.
 
     If a cache file already exists for the given model, split, and prompt,
     that cache file is returned. Otherwise, the location where the predictions
@@ -46,7 +46,7 @@ def determine_preds_cache_location(
             "validation", or "test".
         prompt (str, optional): The prompt to be prepended to each post.
         preds_cache_dir (str, optional): The directory where the cache files
-            are stored. Defaults to "{PREDS_CACHE_DIR}".
+            are stored. Defaults to "./data/preds_cache".
 
     Returns:
         str: The location of the cache file.
@@ -208,6 +208,76 @@ def extract_cache_file_info(cache_location: str) -> tuple[str, str, str]:
     return model, split, prompt_path
 
 
+def construct_full_prompt(prompt: str, post: str) -> str:
+    """Constructs a full prompt from the given prompt and post.
+
+    Args:
+        prompt (str): The prompt to use.
+        post (str): The post to use.
+
+    Returns:
+        str: The full prompt.
+    """
+    return prompt.replace("${post}", post)
+
+
+def classify(prediction: str, labels: set[str]) -> str:
+    """Extract a label from the response.
+
+    Args:
+        response (str): The response from the model.
+        labels (set[str]): The set of possible ground truth labels.
+
+    Returns:
+        str: A label in the given set of labels, or an alternative string if
+            a fitting label could not be found. These alternative strings can
+            be useful for getting insight into the model's outputs.
+    """
+    prediction = prediction.lower()
+
+    # Check which labels the prediction contains.
+    labels_in_prediction = set()
+    for label in labels:
+        if re.search(rf"\b{label.lower()}\b", prediction.lower()) is not None:
+            labels_in_prediction.add(label)
+
+    # Single label in prediction.
+    if len(labels_in_prediction) == 1:
+        return labels_in_prediction.pop()
+
+    # Multiple labels in prediction.
+    if len(labels_in_prediction) > 1:
+        return "/".join(sorted(labels_in_prediction))
+
+    # No labels in prediction.
+    return "None"
+
+
+def log_pred(
+    example_idx: int,
+    full_prompt: str,
+    prediction: str,
+    label_true: str,
+    label_pred: str,
+) -> None:
+    """Show a single prediction.
+
+    Args:
+        example_idx (int): The index of the example.
+        full_prompt (str): The full prompt, including the post.
+        prediction (str): The model's prediction.
+        label_true (str): The true label.
+        label_pred (str): The predicted label.
+    """
+    logging.info(f" Example {example_idx} ".center(66, "-"))
+    full_prompt = full_prompt.rstrip("\n")
+    logging.info("\n>>> ".join(["Input prompt:"] + full_prompt.split("\n")))
+    logging.info("\n>>> ".join(["Model's output:"] + prediction.split("\n")))
+    logging.info(f"True label: {label_true}")
+    logging.info(f"Predicted label: {label_pred}")
+    logging.info("")
+
+
 def update_preds_cache(
     model: str,
     split: str,
@@ -255,10 +325,11 @@ def generate_predictions(
     prompt: str,
     dataset: Dataset,
     min_preds: int = 0,
+    show_preds: int = 0,
     preds_cache_dir: str = PREDS_CACHE_DIR,
     save_every: int = 1000,
 ) -> list[str]:
-    f"""Generates predictions using the given model.
+    """Generates predictions using the given model.
 
     WARNING: The generated list may be larger or smaller than `min_preds`,
         which respectively depends on the amount of cached predictions and the
@@ -275,8 +346,10 @@ def generate_predictions(
             these predictions, the model will continue generating predictions
             until the minimum amount is reached. If 0, all predictions will be
             generated. Defaults to 0.
+        show_preds (int, optional): The number of generated predictions that
+            should be shown. If 0, no predictions will be shown. Defaults to 0.
         preds_cache_dir (str, optional): The directory where the cache files
-            are stored. Defaults to "{PREDS_CACHE_DIR}".
+            are stored. Defaults to "./data/preds_cache".
         save_every (int, optional): The amount of predictions that should be
             generated before saving them to the cache file. Defaults to 1000.
 
@@ -322,17 +395,11 @@ def generate_predictions(
     if select[0] >= select[1]:
         return predictions
     logging.info(f"Selecting examples {select[0]} to {select[1]}.")
+    labels = set(dataset["offensiveYN"])
     dataset = dataset.select(range(*select))
 
-    # Generate the (missing) predictions.
-    logging.info("Generating predictions...")
-    if "${post}" not in prompt:
-        raise ValueError(
-            "The prompt must contain the string '${post}' to indicate where "
-            "the post should be inserted."
-        )
-    pipe = transformers.pipeline(model=f"MBZUAI/{model}")
     # Check if the pipeline task is supported.
+    pipe = transformers.pipeline(model=f"MBZUAI/{model}")
     supported_tasks = (
         transformers.pipelines.Text2TextGenerationPipeline,
         transformers.pipelines.TextGenerationPipeline,
@@ -344,21 +411,46 @@ def generate_predictions(
             + f", but '{type(pipe).__name__}' was found."
         )
     logging.info(f"Pipeline task is '{type(pipe).__name__}'")
-    for response in pipe(
-        iter(
-            tqdm(
-                (
-                    prompt.replace("${post}", example["post"])
-                    for example in dataset
-                ),
-                initial=select[0],
-                total=select[1],
-            )
+
+    # Construct the full prompt for each example.
+    if "${post}" not in prompt:
+        raise ValueError(
+            "The prompt must contain the string '${post}' to indicate where "
+            "the post should be inserted."
+        )
+    full_prompts = [
+        construct_full_prompt(prompt, example["post"]) for example in dataset
+    ]
+
+    # Generate the (missing) predictions.
+    logging.info("Generating predictions...")
+    for i, (example, full_prompt, response) in enumerate(
+        zip(
+            dataset,
+            full_prompts,
+            pipe(
+                iter(tqdm(full_prompts, initial=select[0], total=select[1])),
+                max_length=100,
+                pad_token_id=50256,
+            ),
         ),
-        max_length=1024,
-        pad_token_id=50256,  # To suppress warnings.
+        start=select[0],
     ):
-        predictions.append(response[0]["generated_text"])
+        # Extract the model's output prediction from the response.
+        prediction = response[0]["generated_text"]
+        if isinstance(pipe, transformers.pipelines.TextGenerationPipeline):
+            prediction = prediction[len(full_prompt) :].lstrip()
+        predictions.append(prediction)
+
+        # Show a log of the prediction if requested.
+        if i < select[0] + show_preds:
+            log_pred(
+                i,
+                full_prompt,
+                prediction,
+                example["offensiveYN"],
+                classify(prediction, labels),
+            )
 
         # To prevent crashes or other errors from causing the loss of all
         # computed predictions, we save the predictions to the cache file after
@@ -377,7 +469,7 @@ def generate_predictions(
 def load_predictions(
     model: str, split: str, prompt: str, preds_cache_dir: str = PREDS_CACHE_DIR
 ) -> list[str]:
-    f"""Loads the predictions generated by the given model.
+    """Loads the predictions generated by the given model.
 
     Args:
         model (str): The name of the model.
@@ -385,7 +477,7 @@ def load_predictions(
             be one of "train", "validation", or "test".
         prompt (str): The prompt to be prepended to each post.
         preds_cache_dir (str, optional): The directory where the cache files
-            are stored. Defaults to "{PREDS_CACHE_DIR}".
+            are stored. Defaults to "./data/preds_cache".
 
     Returns:
         list[str]: The predictions generated by the model.
