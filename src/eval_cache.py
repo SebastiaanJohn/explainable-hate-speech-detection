@@ -77,7 +77,12 @@ def main(args: argparse.Namespace) -> None:
         prompt = f.read()
 
     # Load the dataset.
-    dataset = get_social_bias_dataset(args.split, num_workers=args.num_workers)
+    dataset = get_social_bias_dataset(
+        args.split,
+        label_positive=args.label_positive,
+        label_negative=args.label_negative,
+        num_workers=args.num_workers,
+    )
 
     # Generate the predictions.
     predictions = load_predictions(
@@ -165,9 +170,23 @@ if __name__ == "__main__":
     parser.add_argument(
         "--show_preds",
         type=int,
-        default=20,
+        default=10,
         help="The number of generated predictions that should be shown. "
-        "Defaults to 20.",
+        "Defaults to 10.",
+    )
+    parser.add_argument(
+        "--label_positive",
+        type=str,
+        default="yes",
+        help="If the model's output contains this label, the prediction will "
+        "be considered positive (post is offensive). Defaults to 'yes'.",
+    )
+    parser.add_argument(
+        "--label_negative",
+        type=str,
+        default="no",
+        help="If the model's output contains this label, the prediction will "
+        "be considered negative (post is not offensive). Defaults to 'no'.",
     )
     parser.add_argument(
         "--num_workers",

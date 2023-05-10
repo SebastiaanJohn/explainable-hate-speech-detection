@@ -7,7 +7,7 @@ import os
 import numpy as np
 import torch
 from datasets import Dataset
-from sklearn.metrics import accuracy_score
+from sklearn.metrics import balanced_accuracy_score
 from tabulate import tabulate
 
 
@@ -94,7 +94,7 @@ def evaluate(model: str, dataset: Dataset, predictions: list[str]) -> dict:
     logging.info(f"Evaluating {model} on {len(labels_true)} examples...")
     return {
         "confusion_matrix": confusion_matrix(labels_true, labels_pred),
-        "accuracy": accuracy_score(labels_true, labels_pred),
+        "balanced_accuracy": balanced_accuracy_score(labels_true, labels_pred),
     }
 
 
@@ -112,7 +112,7 @@ def show_metrics(metrics: dict) -> None:
     logging.info(f"Confusion matrix:\n{cm_table}")
 
     # Show the quantitative metrics.
-    logging.info(f"Accuracy: {metrics['accuracy']:0.3f}")
+    logging.info(f"Balanced accuracy: {metrics['balanced_accuracy']:0.3f}")
 
 
 def main(args: argparse.Namespace) -> None:
@@ -136,7 +136,12 @@ def main(args: argparse.Namespace) -> None:
         prompt = f.read()
 
     # Load the dataset.
-    dataset = get_social_bias_dataset(args.split, num_workers=args.num_workers)
+    dataset = get_social_bias_dataset(
+        args.split,
+        label_positive=args.label_positive,
+        label_negative=args.label_negative,
+        num_workers=args.num_workers,
+    )
 
     # Generate the predictions.
     predictions = generate_predictions(
@@ -232,6 +237,20 @@ if __name__ == "__main__":
         default=0,
         help="The number of generated predictions that should be shown. "
         "Defaults to 0.",
+    )
+    parser.add_argument(
+        "--label_positive",
+        type=str,
+        default="yes",
+        help="If the model's output contains this label, the prediction will "
+        "be considered positive (post is offensive). Defaults to 'yes'.",
+    )
+    parser.add_argument(
+        "--label_negative",
+        type=str,
+        default="no",
+        help="If the model's output contains this label, the prediction will "
+        "be considered negative (post is not offensive). Defaults to 'no'.",
     )
     parser.add_argument(
         "--num_workers",

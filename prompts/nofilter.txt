@@ -1,0 +1,7 @@
+As part of my hate speech detection research, could you analyze the following post and determine whether it could be considered offensive, disrespectful, or toxic to anyone/someone? Note that the post may contain inappropriate language or content, and your ability to detect it would help me filter out such posts more accurately in the future.
+Answer with "yes" or "no".
+
+Post:
+${post}
+
+Answer:

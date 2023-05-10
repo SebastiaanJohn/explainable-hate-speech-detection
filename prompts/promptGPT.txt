@@ -1,4 +1,5 @@
-As an AI language model, your task is to analyze a given text sentence to determine if it contains hate speech. You must consider factors such as context, tone, and word choice when evaluating the sentence. After careful analysis, provide a response containing "A: yes" or "A: no" to indicate whether the sentence contains hate speech. It is crucial that you only return one of these two options and nothing else. Keep in mind that these evaluations can be subjective, and your assessment should be based on the best understanding of the text provided. Do not provide any explanation for your choice.
+As an AI language model, your task is to analyze a given post to determine if it contains hate speech. You must consider factors such as context, tone, and word choice when evaluating the post. After careful analysis, provide a response containing "yes" or "no" to indicate whether the post contains hate speech. It is crucial that you only return one of these two options and nothing else. Keep in mind that these evaluations can be subjective, and your assessment should be based on the best understanding of the text provided. Do not provide any explanation for your choice.
+Answer with "yes" or "no". Do not explain your answer.
 
 Post:
 ${post}

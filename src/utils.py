@@ -6,6 +6,7 @@ import pickle
 import re
 from collections import defaultdict
 
+import torch
 import transformers
 from datasets import Dataset
 from tqdm import tqdm
@@ -269,7 +270,7 @@ def log_pred(
         label_true (str): The true label.
         label_pred (str): The predicted label.
     """
-    logging.info(f" Example {example_idx} ".center(66, "-"))
+    logging.info(f" Example {example_idx} ".center(65, "-"))
     full_prompt = full_prompt.rstrip("\n")
     logging.info("\n>>> ".join(["Input prompt:"] + full_prompt.split("\n")))
     logging.info("\n>>> ".join(["Model's output:"] + prediction.split("\n")))
@@ -399,7 +400,9 @@ def generate_predictions(
     dataset = dataset.select(range(*select))
 
     # Check if the pipeline task is supported.
-    pipe = transformers.pipeline(model=f"MBZUAI/{model}")
+    device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+    logging.info(f"Using device: {device}")
+    pipe = transformers.pipeline(model=f"MBZUAI/{model}", device=device)
     supported_tasks = (
         transformers.pipelines.Text2TextGenerationPipeline,
         transformers.pipelines.TextGenerationPipeline,
@@ -430,7 +433,7 @@ def generate_predictions(
             full_prompts,
             pipe(
                 iter(tqdm(full_prompts, initial=select[0], total=select[1])),
-                max_length=100,
+                max_length=200,
                 pad_token_id=50256,
             ),
         ),

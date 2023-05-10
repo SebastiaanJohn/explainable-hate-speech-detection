@@ -8,20 +8,32 @@ import numpy as np
 from datasets import Dataset, load_dataset
 
 
-def get_social_bias_dataset(split: str, num_workers: int = 0) -> Dataset:
+def get_social_bias_dataset(
+    split: str,
+    label_positive: str = "yes",
+    label_negative: str = "no",
+    num_workers: int = 0,
+) -> Dataset:
     """
     Returns the Social Bias Frames dataset.
 
     Args:
         split (str): The split of the dataset to load. Must be one of "train",
             "validation", or "test".
+        label_positive (str, optional): If the model's output contains this
+            label, the prediction will be considered positive (post is
+            offensive). Defaults to 'yes'.
+        label_negative (str, optional): If the model's output contains this
+            label, the prediction will be considered negative (post is not
+            offensive). Defaults to 'no'.
         num_workers (int, optional): Number of workers to use for data loading.
             If set to 0, no multiprocessing will be used. Defaults to 0.
 
     Returns:
         Dataset: The social bias dataset, with the following columns:
             post (str): The text of the post.
-            offensiveYN (str): The label of the post. Either "yes" or "no".
+            offensiveYN (str): The label of the post. Either the given positive
+                or negative label.
     """
     if split not in ("train", "validation", "test"):
         raise ValueError(
@@ -83,7 +95,7 @@ def get_social_bias_dataset(split: str, num_workers: int = 0) -> Dataset:
         {
             "post": list(labels_per_post.keys()),
             "offensiveYN": [
-                "yes" if np.mean(labels) >= 0.5 else "no"
+                label_positive if np.mean(labels) >= 0.5 else label_negative
                 for labels in labels_per_post.values()
             ],
         },
