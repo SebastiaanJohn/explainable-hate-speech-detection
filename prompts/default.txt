@@ -1,7 +1,7 @@
-Is the following post hateful?
-Answer with "yes" or "no". Do not explain your answer.
-
 Post:
 ${post}
+
+Is the post above hateful?
+Answer with "yes" or "no". Do not explain your answer.
 
 Answer:
