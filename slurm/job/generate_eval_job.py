@@ -1,8 +1,9 @@
 import argparse
-
+import os
 
 def main(args: argparse.Namespace) -> None:
     # Generate the contents of the job file.
+    prompt = os.path.basename(args.prompt_path)
     sh_file = f"""#!/bin/bash
 
 #SBATCH --partition=gpu_titanrtx_shared_course
@@ -12,7 +13,7 @@ def main(args: argparse.Namespace) -> None:
 #SBATCH --cpus-per-task=4
 #SBATCH --time=02:00:00
 #SBATCH --mem=32000M
-#SBATCH --output=slurm/out/{args.model}_{args.prompt_path}_%A.txt
+#SBATCH --output=slurm/out/{args.model}_{prompt}_%A.txt
 
 module purge
 module load 2021
