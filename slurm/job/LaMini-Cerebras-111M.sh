@@ -16,6 +16,6 @@ module load Anaconda3/2021.05
 source activate CoT-XAI-HateSpeechDetection
 
 cd $HOME/CoT-XAI-HateSpeechDetection
-srun python3 src/eval.py --model LaMini-Cerebras-111M --show_preds 10
+srun python3 src/eval.py --model LaMini-Cerebras-111M --show_preds 10 --prompt_path prompts/default_cot.txt
 
 echo "Job finished fully."
