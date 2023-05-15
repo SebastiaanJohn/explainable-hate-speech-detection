@@ -196,10 +196,6 @@ if __name__ == "__main__":
             "LaMini-T5-223M",
             "LaMini-T5-738M",
             "bactrian-x-7b-lora",
-            "swiftformer-xs",
-            "swiftformer-s",
-            "swiftformer-l1",
-            "swiftformer-l3",
         ],
         help="The name of the model to evaluate.",
     )
