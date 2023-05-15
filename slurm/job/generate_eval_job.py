@@ -12,7 +12,7 @@ def main(args: argparse.Namespace) -> None:
 #SBATCH --cpus-per-task=4
 #SBATCH --time=02:00:00
 #SBATCH --mem=32000M
-#SBATCH --output=slurm/out/{args.model}_%A.txt
+#SBATCH --output=slurm/out/{args.model}_{args.prompt_path}_%A.txt
 
 module purge
 module load 2021
