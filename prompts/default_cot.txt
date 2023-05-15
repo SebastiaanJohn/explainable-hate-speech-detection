@@ -4,4 +4,5 @@ ${post}
 Is the post above hateful?
 Answer with "yes" or "no". Please explain your answer.
 
-Answer: Let's think step by step.
+Answer:
+Let's think step by step.
