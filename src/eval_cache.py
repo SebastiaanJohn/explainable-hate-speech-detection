@@ -140,11 +140,6 @@ if __name__ == "__main__":
             "LaMini-T5-738M",
             "LaMini-T5-223M",
             "LaMini-T5-61M",
-            "bactrian-x-7b-lora",
-            "swiftformer-l1",
-            "swiftformer-l3",
-            "swiftformer-s",
-            "swiftformer-xs",
         ],
         help="The name of the model that was evaluated.",
     )

@@ -154,7 +154,9 @@ tb_logs/
 
 # Lisa Slurm job and output files
 /slurm/*
-!/slurm/job/
+/slurm/job/*
+!/slurm/job/generate_eval_job.py
+!/slurm/job/install_env.sh
 
 # Lisa help files
 startenv.sh

@@ -1,9 +1,11 @@
 import argparse
+import os
 
 
 def main(args: argparse.Namespace) -> None:
     # Generate the contents of the job file.
-    sh_file = f"""#!/bin/bash
+    prompt = os.path.basename(args.prompt_path)
+    sh_file = fr"""#!/bin/bash
 
 #SBATCH --partition=gpu_titanrtx_shared_course
 #SBATCH --gres=gpu:1
@@ -12,7 +14,7 @@ def main(args: argparse.Namespace) -> None:
 #SBATCH --cpus-per-task=4
 #SBATCH --time=02:00:00
 #SBATCH --mem=32000M
-#SBATCH --output=slurm/out/{args.model}_%A.txt
+#SBATCH --output=slurm/out/{args.model}_{prompt}_%A.txt
 
 module purge
 module load 2021
@@ -21,7 +23,10 @@ module load Anaconda3/2021.05
 source activate CoT-XAI-HateSpeechDetection
 
 cd $HOME/CoT-XAI-HateSpeechDetection
-srun python3 src/eval.py --model {args.model} --show_preds 10
+srun python3 src/eval.py \
+    --model {args.model} \
+    --show_preds 10 \
+    --prompt_path {args.prompt_path}
 
 echo \"Job finished fully.\"
 """
@@ -32,11 +37,12 @@ echo \"Job finished fully.\"
     with open(filename, "w") as f:
         f.write(sh_file)
     print(
-        "\n" +
-        "-" * 80 + "\n" +
-        f"A job file has been created in `{filename}`.\n"
-        "Run the following command to submit the job:\n"
-        f"$ sbatch {filename}"
+        "\n"
+        + "-" * 80
+        + "\n"
+        + f"A job file has been created in `{filename}`.\n"
+        + "Run the following command to submit the job:\n"
+        + f"$ sbatch {filename}"
     )
 
 
@@ -66,13 +72,14 @@ if __name__ == "__main__":
             "LaMini-T5-61M",
             "LaMini-T5-223M",
             "LaMini-T5-738M",
-            "bactrian-x-7b-lora",
-            "swiftformer-xs",
-            "swiftformer-s",
-            "swiftformer-l1",
-            "swiftformer-l3",
         ],
         help="The name of the model to evaluate.",
+    )
+
+    parser.add_argument(
+        "--prompt_path",
+        type=str,
+        help="Path to the prompt to use for evaluation.",
     )
 
     # Parse the arguments.
