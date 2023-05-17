@@ -4,17 +4,21 @@ import os
 
 def main(args: argparse.Namespace) -> None:
     # Generate the contents of the job file.
-    prompt = os.path.basename(args.prompt_path)
-    sh_file = fr"""#!/bin/bash
+    prompt_name = os.path.basename(args.prompt_path)
+    # Get the file name without the extension.
+    prompt_name = os.path.splitext(prompt_name)[0]
+
+    # Create the job file.
+    sh_file = rf"""#!/bin/bash
 
 #SBATCH --partition=gpu_titanrtx_shared_course
 #SBATCH --gres=gpu:1
-#SBATCH --job-name={args.model}
+#SBATCH --job-name={args.model}_{prompt_name}
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=4
 #SBATCH --time=02:00:00
 #SBATCH --mem=32000M
-#SBATCH --output=slurm/out/{args.model}_{prompt}_%A.txt
+#SBATCH --output=slurm/out/{args.model}_{prompt_name}_%A.txt
 
 module purge
 module load 2021
@@ -25,15 +29,15 @@ source activate CoT-XAI-HateSpeechDetection
 cd $HOME/CoT-XAI-HateSpeechDetection
 srun python3 src/eval.py \
     --model {args.model} \
-    --show_preds 10 \
-    --prompt_path {args.prompt_path}
+    --prompt_path {args.prompt_path} \
+    --show_preds 10
 
-echo \"Job finished fully.\"
+echo "Job finished fully."
 """
     print(sh_file)
 
     # Create the job file.
-    filename = f"slurm/job/{args.model}.sh"
+    filename = f"slurm/job/{args.model}_{prompt_name}.sh"
     with open(filename, "w") as f:
         f.write(sh_file)
     print(
@@ -79,6 +83,7 @@ if __name__ == "__main__":
     parser.add_argument(
         "--prompt_path",
         type=str,
+        required=True,
         help="Path to the prompt to use for evaluation.",
     )
 
