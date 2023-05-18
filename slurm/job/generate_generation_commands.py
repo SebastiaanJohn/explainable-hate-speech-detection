@@ -31,7 +31,8 @@ def main(args: argparse.Namespace) -> None:
         print(
             "python3 generate_eval_job.py "
             f"--prompt_path {args.prompt_path} "
-            f"--model {model_choice}"
+            f"--model {model_choice} "
+            f"--max_length {args.max_length}"
         )
     print()
     print("-" * 80)
@@ -53,6 +54,11 @@ if __name__ == "__main__":
         type=str,
         required=True,
         help="Path to the prompt to use for evaluation.",
+    )
+    parser.add_argument(
+        "--max_length",
+        type=int,
+        default=200,
     )
 
     # Parse the arguments.
