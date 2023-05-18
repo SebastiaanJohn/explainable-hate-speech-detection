@@ -10,11 +10,6 @@ Choices: yes, no
 Answer: no
 Explanation: The post is about washing hair using soap instead of shampoo and does not contain any offensive statements or opinions.
 
-Post: Diversity and immigration = allowing enemies into our cities.
-Choices: yes, no
-Answer: yes
-Explanation: The text suggests that all immigrants are enemies, which is an offensive and unfair generalization. It assumes that anyone who immigrates to a city or country is automatically an enemy, which is not only inaccurate but also promotes a negative and harmful stereotype.
-
 Post: ${post}
 Choices: yes, no
 Answer:
