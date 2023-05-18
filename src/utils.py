@@ -18,13 +18,6 @@ VALID_FILENAME_CHARS = (
     r"-=abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
 )
 
-def get_device() -> torch.device:
-    """Returns the device that should be used for training."""
-    if torch.cuda.is_available():
-        return torch.device("cuda")
-    if torch.backends.mps.is_available():
-        return torch.device("mps")
-    return torch.device("cpu")
 
 def safeguard_filename(filename: str) -> str:
     """Converts a filename to a safe filename by removing special characters.
@@ -410,7 +403,7 @@ def generate_predictions(
     dataset = dataset.select(range(*select))
 
     # Check if the pipeline task is supported.
-    device = get_device()
+    device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
     logging.info(f"Using device: {device}")
     pipe = transformers.pipeline(model=f"MBZUAI/{model}", device=device)
     supported_tasks = (
@@ -515,6 +508,4 @@ def load_predictions(
             content = pickle.load(f)
             return content["predictions"]
 
-    raise FileNotFoundError(
-        f"No cached predictions found at {cache_location}."
-    )
+    raise FileNotFoundError(f"No cached predictions found at {cache_location}.")
