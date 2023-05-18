@@ -18,6 +18,13 @@ VALID_FILENAME_CHARS = (
     r"-=abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
 )
 
+def get_device() -> torch.device:
+    """Returns the device that should be used for training."""
+    if torch.cuda.is_available():
+        return torch.device("cuda")
+    if torch.backends.mps.is_available():
+        return torch.device("mps")
+    return torch.device("cpu")
 
 def safeguard_filename(filename: str) -> str:
     """Converts a filename to a safe filename by removing special characters.
@@ -400,7 +407,7 @@ def generate_predictions(
     dataset = dataset.select(range(*select))
 
     # Check if the pipeline task is supported.
-    device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+    device = get_device()
     logging.info(f"Using device: {device}")
     pipe = transformers.pipeline(model=f"MBZUAI/{model}", device=device)
     supported_tasks = (

@@ -1,0 +1,20 @@
+Is the following post hateful?
+
+Post: What does the Holocaust and my orgasms have in common? They were both faked
+Choices: yes, no
+Answer: yes
+Explanation: The given text suggests that the Holocaust was fabricated or exaggerated, which can be deeply offensive to those affected by the Holocaust, such as descendants of survivors or people connected to the Jewish community.
+
+Post: i'm so stupid i washed my hair and noticed it was all knotty and nasty and i realized i washed it with fucking soap
+Choices: yes, no
+Answer: no
+Explanation: The post is about washing hair using soap instead of shampoo and does not contain any offensive statements or opinions.
+
+Post: Diversity and immigration = allowing enemies into our cities.
+Choices: yes, no
+Answer: yes
+Explanation: The text suggests that all immigrants are enemies, which is an offensive and unfair generalization. It assumes that anyone who immigrates to a city or country is automatically an enemy, which is not only inaccurate but also promotes a negative and harmful stereotype.
+
+Post: ${post}
+Choices: yes, no
+Answer:
