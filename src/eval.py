@@ -153,6 +153,7 @@ def main(args: argparse.Namespace) -> None:
         show_preds=args.show_preds,
         preds_cache_dir=args.preds_cache_dir,
         save_every=args.save_every,
+        max_length=args.max_length,
     )
 
     # Evaluate the model.
@@ -266,6 +267,12 @@ if __name__ == "__main__":
         type=int,
         default=1000,
         help="Cache the predictions every n predictions. Defaults to 1000.",
+    )
+    parser.add_argument(
+        "--max_length",
+        type=int,
+        default=200,
+        help="Maximum length of the generated predictions. Defaults to 200.",
     )
 
     # Parse the arguments.
