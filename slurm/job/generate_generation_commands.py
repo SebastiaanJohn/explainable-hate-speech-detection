@@ -29,7 +29,7 @@ def main(args: argparse.Namespace) -> None:
     print()
     for model_choice in model_choices:
         print(
-            "python3 generate_eval_job.py "
+            "python3 slurm/job/generate_eval_job.py "
             f"--prompt_path {args.prompt_path} "
             f"--model {model_choice} "
             f"--max_length {args.max_length}"

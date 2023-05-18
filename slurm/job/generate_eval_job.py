@@ -30,7 +30,8 @@ cd $HOME/CoT-XAI-HateSpeechDetection
 srun python3 src/eval.py \
     --model {args.model} \
     --prompt_path {args.prompt_path} \
-    --show_preds 10
+    --show_preds 10 \
+    --max_length {args.max_length}
 
 echo "Job finished fully."
 """
@@ -85,6 +86,11 @@ if __name__ == "__main__":
         type=str,
         required=True,
         help="Path to the prompt to use for evaluation.",
+    )
+    parser.add_argument(
+        "--max_length",
+        type=int,
+        default=200,
     )
 
     # Parse the arguments.
