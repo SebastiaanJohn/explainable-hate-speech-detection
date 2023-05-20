@@ -265,7 +265,7 @@ if __name__ == "__main__":
     parser.add_argument(
         "--save_every",
         type=int,
-        default=1000,
+        default=200,
         help="Cache the predictions every n predictions. Defaults to 1000.",
     )
     parser.add_argument(
