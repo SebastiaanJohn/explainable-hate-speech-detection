@@ -230,9 +230,9 @@ if __name__ == "__main__":
     parser.add_argument(
         "--show_preds",
         type=int,
-        default=0,
+        default=10,
         help="The number of generated predictions that should be shown. "
-        "Defaults to 0.",
+        "Defaults to 10.",
     )
     parser.add_argument(
         "--label_positive",
@@ -265,8 +265,8 @@ if __name__ == "__main__":
     parser.add_argument(
         "--save_every",
         type=int,
-        default=200,
-        help="Cache the predictions every n predictions. Defaults to 1000.",
+        default=100,
+        help="Cache the predictions every n predictions. Defaults to 100.",
     )
     parser.add_argument(
         "--max_length",
