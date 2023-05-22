@@ -6,6 +6,7 @@ from collections import defaultdict
 
 import numpy as np
 from datasets import Dataset, load_dataset
+from unidecode import unidecode
 
 
 def get_social_bias_dataset(
@@ -102,6 +103,15 @@ def get_social_bias_dataset(
         features=dataset.features,
         info=dataset.info,
         split=dataset.split,
+    )
+
+    # Convert Unicode characters to ASCII (test split has 382 of these).
+    logging.info("Converting Unicode characters to ASCII...")
+    dataset = dataset.map(
+        lambda example: {
+            "post": unidecode(example["post"]),
+        },
+        num_proc=None if num_workers == 0 else num_workers,
     )
 
     # Count how many examples are in each class.
