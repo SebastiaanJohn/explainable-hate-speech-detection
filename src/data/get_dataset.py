@@ -45,7 +45,7 @@ def get_social_bias_dataset(
     logging.info(f"Loading 'Social Bias Frames' {split} split...")
     dataset = load_dataset(
         "social_bias_frames",
-        split=split,
+        split="test[:100]",
         num_proc=None if num_workers == 0 else num_workers,
     )
 
