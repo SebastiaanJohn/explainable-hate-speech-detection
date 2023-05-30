@@ -498,16 +498,6 @@ def generate_predictions(
             # ================ Debugging ================
 
             predictions.append(final_prediction)
-
-            # Show a log of the prediction if requested.
-            if i < select[0] + show_preds:
-                log_pred(
-                    i,
-                    second_prompt,
-                    final_prediction,
-                    example["offensiveYN"],
-                    classify(final_prediction, labels),
-                )
         else:
             predictions.append(first_prediction)
 
