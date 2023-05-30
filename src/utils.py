@@ -474,8 +474,7 @@ def generate_predictions(
 
         if chain_of_thought:
             # Construct the second prompt with the first prediction.
-            second_prompt = construct_full_prompt(
-                prompt, example["post"]) + first_prediction + f"\n{second_prompt}"
+            second_prompt = full_prompt + first_prediction + f"\n{second_prompt}"
             # print(second_prompt)
             # Generate the second (final) prediction
             second_prediction_response = pipe(
