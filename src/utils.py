@@ -11,6 +11,7 @@ import transformers
 from datasets import Dataset
 from tqdm import tqdm
 from transformers import (
+    AutoModelForCausalLM,
     AutoTokenizer,
     GPT2LMHeadModel,
     PreTrainedTokenizer,
@@ -479,7 +480,7 @@ def generate_predictions(
     # Load tokenizer and model.
     logging.info("Loading tokenizer and model...")
     tokenizer = AutoTokenizer.from_pretrained(model)
-    model = transformers.AutoModelForSeq2SeqLM.from_pretrained(model).to(device)
+    model = AutoModelForCausalLM.from_pretrained(model).to(device)
 
     # Construct the full prompt for each example.
     if "${post}" not in prompt:
