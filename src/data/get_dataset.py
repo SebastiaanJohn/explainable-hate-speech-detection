@@ -15,8 +15,7 @@ def get_social_bias_dataset(
     label_negative: str = "no",
     num_workers: int = 0,
 ) -> Dataset:
-    """
-    Returns the Social Bias Frames dataset.
+    """Returns the Social Bias Frames dataset.
 
     Args:
         split (str): The split of the dataset to load. Must be one of "train",
@@ -46,7 +45,7 @@ def get_social_bias_dataset(
     logging.info(f"Loading 'Social Bias Frames' {split} split...")
     dataset = load_dataset(
         "social_bias_frames",
-        split=split,
+        split="test[:100]",
         num_proc=None if num_workers == 0 else num_workers,
     )
 

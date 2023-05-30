@@ -1,0 +1,5 @@
+Post:
+${post}
+
+Question: Is the post above hateful?
+Answer: Let's think step by step.

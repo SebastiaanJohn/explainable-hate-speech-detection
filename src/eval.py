@@ -154,6 +154,9 @@ def main(args: argparse.Namespace) -> None:
         preds_cache_dir=args.preds_cache_dir,
         save_every=args.save_every,
         max_length=args.max_length,
+        chain_of_thought=args.cot,
+        second_prompt=args.second_prompt,
+        use_mps=args.use_mps,
     )
 
     # Evaluate the model.
@@ -164,13 +167,6 @@ def main(args: argparse.Namespace) -> None:
 
 
 if __name__ == "__main__":
-    # Set up logging.
-    logging.basicConfig(
-        level=logging.INFO,
-        format="%(asctime)s %(levelname)s %(message)s",
-        datefmt="%H:%M:%S",
-    )
-
     # Create the argument parser.
     parser = argparse.ArgumentParser()
 
@@ -180,23 +176,6 @@ if __name__ == "__main__":
         type=str,
         required=True,
         # For up-to-date model names, see https://huggingface.co/MBZUAI.
-        choices=[
-            "LaMini-Cerebras-111M",
-            "LaMini-Cerebras-256M",
-            "LaMini-Cerebras-590M",
-            "LaMini-Cerebras-1.3B",
-            "LaMini-GPT-124M",
-            "LaMini-GPT-774M",
-            "LaMini-GPT-1.5B",
-            "LaMini-Neo-125M",
-            "LaMini-Neo-1.3B",
-            "LaMini-Flan-T5-77M",
-            "LaMini-Flan-T5-248M",
-            "LaMini-Flan-T5-783M",
-            "LaMini-T5-61M",
-            "LaMini-T5-223M",
-            "LaMini-T5-738M",
-        ],
         help="The name of the model to evaluate.",
     )
 
@@ -274,7 +253,40 @@ if __name__ == "__main__":
         default=200,
         help="Maximum length of the generated predictions. Defaults to 200.",
     )
+    parser.add_argument(
+        "--cot",
+        action="store_true",
+        help="If set, the model will be evaluated with two predictions",
+    )
+    parser.add_argument(
+        "--second_prompt",
+        type=str,
+        help="The second prompt to use for evaluation.",
+        default="",
+    )
+    parser.add_argument(
+        "--use_mps",
+        action="store_true",
+        help="If set, the model will be evaluated on Apple GPU.",
+    )
+    parser.add_argument(
+        "--debug",
+        action="store_true",
+        help="If set, the model will set logging level to DEBUG.",
+    )
 
     # Parse the arguments.
     args = parser.parse_args()
+
+    # Set up logging.
+    if args.debug:
+        level = logging.DEBUG
+    else:
+        level = logging.INFO
+    logging.basicConfig(
+        level=level,
+        format="%(asctime)s %(levelname)s %(message)s",
+        datefmt="%H:%M:%S",
+    )
+
     main(args)
