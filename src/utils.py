@@ -418,7 +418,7 @@ def generate_predictions(
     else:
         device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
     logging.info(f"Using device: {device}")
-    pipe = transformers.pipeline(model=model, device=device)
+    pipe = transformers.pipeline(model=f"MBZUAI/{model}", device=device)
     supported_tasks = (
         transformers.pipelines.Text2TextGenerationPipeline,
         transformers.pipelines.TextGenerationPipeline,
