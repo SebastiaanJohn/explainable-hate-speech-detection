@@ -3,32 +3,32 @@ Answer these questions by identifying whether the posts contain hateful content 
 Post: What does the Holocaust and my orgasms have in common? They were both faked
 Choice: yes
 Choice: no
-Answer: yes
 Explanation: The given text suggests that the Holocaust was fabricated or exaggerated, which can be deeply offensive to those affected by the Holocaust, such as descendants of survivors or people connected to the Jewish community.
+Answer: yes
 
 Post: i'm so stupid i washed my hair and noticed it was all knotty and nasty and i realized i washed it with fucking soap
 Choice: yes
 Choice: no
-Answer: no
 Explanation: The post is about washing hair using soap instead of shampoo and does not contain any offensive statements or opinions.
+Answer: no
 
 Post: What's a klansman's favorite type of cheese? White American
 Choice: yes
 Choice: no
-Answer: no
 Explanation: The post plays on the irony of Klansmen supporting the concept of white racial superiority while making a humorous connection to the type of cheese they might prefer. The term "White American" refers both to their preferred cheese and the racial ideology they promote. The post is not directly offensive to anyone.
+Answer: no
 
 Post: Whats worse than a dead homosexual? A live one.
 Choice: yes
 Choice: no
-Answer: yes
 Explanation: The text suggests that it is worse for homosexuals to be alive than dead, which could be deeply offensive to members of the LGBT+ community, specifically homosexuals.
+Answer: yes
 
 Post: Wealthy white Dems sending out vacation pics from the protected resorts they go to is how they stand with the poor people they exploit around the world.. apparently.
 Choice: yes
 Choice: no
-Answer: yes
 Explanation: The sentence specifically targets white individuals, suggesting that their wealth and political affiliation make them exploitative of poor people. This can be offensive to white people, and perpetuate racial biases and reinforce negative stereotypes.
+Answer: yes
 
 Post: ${post}
 Choice: yes
