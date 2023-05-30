@@ -503,10 +503,6 @@ def generate_predictions(
             total=select[1],
             )
         ):
-        # ================ Debugging ================
-        print("===================prompt==================")
-        print(full_prompt)
-        # ================ Debugging ================
         if chain_of_thought:
             input_ids = tokenizer.encode(full_prompt, return_tensors="pt").to(device)
 
@@ -524,14 +520,9 @@ def generate_predictions(
                 first_prediction_response[0], skip_special_tokens=True
             ).strip()
 
-            print("===================first_prediction==================")
-            print(first_prediction)
-
             # Construct the second prompt with the first prediction.
             new_prompt = full_prompt + first_prediction + f"\n{second_prompt}"
 
-            print("===================full_prompt==================")
-            print(new_prompt)
         else:
             new_prompt = full_prompt
 
@@ -543,14 +534,7 @@ def generate_predictions(
             device,
             model,
         )
-        print("===================probabilities==================")
-        print(probabilities)
         final_prediction = sorted(probabilities, key=lambda x: x[1], reverse=True)[0][0]
-        print("===================final_prediction==================")
-        print(final_prediction)
-        print("===================example[offensiveYN]==============")
-        print(example["offensiveYN"])
-        print("=====================================================")
         predictions.append(final_prediction)
 
         # Show a log of the prediction if requested.
