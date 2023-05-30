@@ -1,0 +1,5 @@
+Question: Could the following posts be considered offensive, disrespectful, or toxic to anyone/someone?
+
+Post: ${post}
+Explanation: Let's think step by step. ${answer}
+Answer (Yes/No): ${answer}

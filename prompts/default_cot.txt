@@ -1,7 +1,0 @@
-Post:
-${post}
-
-Is the post above hateful?
-Answer with "yes" or "no". Let's think step by step.
-
-Answer:

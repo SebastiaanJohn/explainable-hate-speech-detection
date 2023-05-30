@@ -1,7 +1,0 @@
-Is the following post hateful?
-Judge with "yes" or "no". Do not explain your judgement.
-
-Post:
-${post}
-
-Judgement:

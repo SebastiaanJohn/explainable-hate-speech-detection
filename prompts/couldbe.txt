@@ -1,7 +1,0 @@
-Could the following post be considered hateful?
-Answer with "yes" or "no". Do not explain your answer.
-
-Post:
-${post}
-
-Answer:

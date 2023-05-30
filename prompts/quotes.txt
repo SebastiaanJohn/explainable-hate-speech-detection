@@ -1,7 +1,0 @@
-Is the following post hateful?
-Answer with "yes" or "no". Do not explain your answer.
-
-Post:
-"${post}"
-
-Answer:
