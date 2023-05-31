@@ -7,7 +7,7 @@ from tqdm import tqdm
 
 
 # isort: off
-from gpt.gpt import get_completion
+from gpt3 import get_completion
 
 # isort: on
 

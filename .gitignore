@@ -170,5 +170,5 @@ tb_logs/
 *.pdf
 
 # Project-specific files (e.g. datasets, models, etc.)
-/data/
-!/data/.gitkeep
+/data/*
+!/data/prompts

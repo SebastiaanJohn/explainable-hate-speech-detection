@@ -16,5 +16,5 @@ Post: Whats worse than a dead homosexual? A live one.
 Answer (Yes/No): Yes.
 Explanation: Let's think step by step. The text suggests that it is worse for homosexuals to be alive than dead, which could be deeply offensive to members of the LGBT+ community, specifically homosexuals.
 
-Post: ${post}
-Answer (Yes/No): ${answer}
+Post: {post}
+Answer (Yes/No): {answer}

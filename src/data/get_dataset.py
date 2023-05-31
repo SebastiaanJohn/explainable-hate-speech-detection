@@ -11,8 +11,6 @@ from unidecode import unidecode
 
 def get_social_bias_dataset(
     split: str,
-    label_positive: str = "yes",
-    label_negative: str = "no",
     num_workers: int = 0,
 ) -> Dataset:
     """Returns the Social Bias Frames dataset.
@@ -20,12 +18,6 @@ def get_social_bias_dataset(
     Args:
         split (str): The split of the dataset to load. Must be one of "train",
             "validation", or "test".
-        label_positive (str, optional): If the model's output contains this
-            label, the prediction will be considered positive (post is
-            offensive). Defaults to 'yes'.
-        label_negative (str, optional): If the model's output contains this
-            label, the prediction will be considered negative (post is not
-            offensive). Defaults to 'no'.
         num_workers (int, optional): Number of workers to use for data loading.
             If set to 0, no multiprocessing will be used. Defaults to 0.
 
@@ -95,7 +87,7 @@ def get_social_bias_dataset(
         {
             "post": list(labels_per_post.keys()),
             "offensiveYN": [
-                label_positive if np.mean(labels) >= 0.5 else label_negative
+                "yes" if np.mean(labels) >= 0.5 else "no"
                 for labels in labels_per_post.values()
             ],
         },
@@ -115,7 +107,7 @@ def get_social_bias_dataset(
 
     # Count how many examples are in each class.
     logging.info("Counting examples per class...")
-    for label in sorted(set(dataset["offensiveYN"])):
+    for label in ("yes", "no"):
         count_label = dataset.filter(
             lambda example: example["offensiveYN"] == label
         ).num_rows
@@ -131,32 +123,45 @@ def main(args: argparse.Namespace):
 
 
 if __name__ == "__main__":
-    # Set up logging.
-    logging.basicConfig(
-        level=logging.INFO,
-        format="%(asctime)s %(levelname)s %(message)s",
-        datefmt="%H:%M:%S",
+    # Create the argument parser.
+    parser = argparse.ArgumentParser(
+        formatter_class=argparse.ArgumentDefaultsHelpFormatter
     )
 
-    # Create the argument parser.
-    parser = argparse.ArgumentParser()
-
-    # Optional parameters.
+    # Define command line arguments.
+    parser.add_argument(
+        "--logging_level",
+        type=str,
+        default="INFO",
+        choices=["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"],
+        help="The logging level to use.",
+    )
     parser.add_argument(
         "--split",
         type=str,
         choices=["train", "val", "test"],
         default="test",
-        help="Split to evaluate on. Defaults to 'test'.",
+        help="Split to evaluate on.",
     )
     parser.add_argument(
         "--num_workers",
         type=int,
         default=8,
         help="Number of workers to use for data loading. If set to 0, "
-        "no multiprocessing will be used. Defaults to 8.",
+        "no multiprocessing will be used.",
     )
 
     # Parse the arguments.
     args = parser.parse_args()
+
+    # Set up logging.
+    logging.basicConfig(
+        level=args.logging_level,
+        format="%(asctime)s %(levelname)s %(message)s",
+        datefmt="%H:%M:%S",
+    )
+
+    # Print command line arguments.
+    logging.info(f"{args=}")
+
     main(args)
