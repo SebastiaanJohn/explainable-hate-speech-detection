@@ -138,8 +138,8 @@ def show_confidence_histogram(
     plt.tight_layout()
 
     # Save the plot.
-    path_plot = os.path.join(dir_images, f"{model}_{prompt_name}.png")
-    path_plot = safeguard_filename(path_plot)
+    path_plot = safeguard_filename(f"{model}_{prompt_name}.png")
+    path_plot = os.path.join(dir_images, path_plot)
     plt.savefig(path_plot)
     logging.info(f"Saved confidence histogram to {path_plot}.")
     plt.clf()
