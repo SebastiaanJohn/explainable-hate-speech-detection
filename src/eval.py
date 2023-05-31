@@ -12,7 +12,13 @@ from tabulate import tabulate
 
 
 # isort: off
-from utils import DIR_CACHES, DIR_IMAGES, DIR_PROMPTS, extract_prompt
+from utils import (
+    DIR_CACHES,
+    DIR_IMAGES,
+    DIR_PROMPTS,
+    extract_prompt,
+    safeguard_filename,
+)
 from data.get_dataset import get_social_bias_dataset
 from generation.generate import generate_predictions
 
@@ -133,6 +139,7 @@ def show_confidence_histogram(
 
     # Save the plot.
     path_plot = os.path.join(dir_images, f"{model}_{prompt_name}.png")
+    path_plot = safeguard_filename(path_plot)
     plt.savefig(path_plot)
     logging.info(f"Saved confidence histogram to {path_plot}.")
     plt.clf()
