@@ -122,14 +122,14 @@ def show_confidence_histogram(
     labels_true = np.array(labels_true)
     plt.hist(
         probs_positive[labels_true == "yes"],
-        bins=np.linspace(0, 100, 11),
+        bins=np.linspace(0, 100, 21),
         color="green",
         alpha=0.5,
         label="Ground truth is 'yes'",
     )
     plt.hist(
         probs_positive[labels_true == "no"],
-        bins=np.linspace(0, 100, 11),
+        bins=np.linspace(0, 100, 21),
         color="red",
         alpha=0.5,
         label="Ground truth is 'no'",
