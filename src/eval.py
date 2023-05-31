@@ -113,6 +113,7 @@ def show_confidence_histogram(
     """
     # Create the histograms.
     probs_positive = np.array(probs_positive) * 100
+    labels_true = np.array(labels_true)
     plt.hist(
         [
             probs_positive[labels_true == "yes"],
@@ -150,6 +151,12 @@ def main(args: argparse.Namespace) -> None:
         torch.cuda.manual_seed_all(args.seed)
     torch.backends.cudnn.deterministic = True
     torch.backends.cudnn.benchmark = False
+
+    # Create the directories for the caches, images and prompts if they don't
+    # already exist.
+    os.makedirs(args.dir_caches, exist_ok=True)
+    os.makedirs(args.dir_images, exist_ok=True)
+    os.makedirs(args.dir_prompts, exist_ok=True)
 
     # Extract the prompt.
     prompt_template = extract_prompt(args.dir_prompts, args.prompt_name)

@@ -63,7 +63,6 @@ def get_probability_positive(
             inputs = tokenizer.encode_plus(prompt, return_tensors="pt")
             inputs = {key: val.to(device) for key, val in inputs.items()}
             output_index = inputs["attention_mask"].sum() - 1
-            print(f"{output_index=}")
             logits = model(**inputs)["logits"][0, output_index, :]
         elif isinstance(model, GPTNeoForCausalLM):
             # Neo models.
@@ -79,17 +78,17 @@ def get_probability_positive(
     ]
 
     # Calculate probabilities.
-    print(f"{inputs['input_ids'].shape=}")
-    print(f"{logits.shape=}")
+    logging.debug(f"{inputs['input_ids'].shape=}")
+    logging.debug(f"{logits.shape=}")
     probs_labels = logits[label_ids]
 
-    top_tokens = torch.topk(logits, 5).indices.tolist()
+    top_tokens = torch.topk(logits, 15).indices.tolist()
     top_tokens = [tokenizer.decode([token]) for token in top_tokens]
-    print(f"Top tokens: {top_tokens}")
+    logging.debug(f"Top tokens: {top_tokens}")
 
     # Normalize probabilities so they sum to 1.
     probs_labels = F.softmax(probs_labels, dim=-1)
-    print(f"{probs_labels=}")
+    logging.debug(f"{probs_labels=}")
 
     # Calculate probability of the next token being a positive label.
     probs_positive = probs_labels[: len(labels_positive)].sum()
