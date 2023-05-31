@@ -129,7 +129,11 @@ def show_confidence_histogram(
         color=["green", "red"],
         label=["Ground truth is 'yes'", "Ground truth is 'no'"],
     )
-    plt.title("Model's confidence vs actual label")
+    plt.title(
+        "Model's confidence vs actual label\n"
+        f"Model: {model}\n"
+        f"Prompt: {prompt_name}"
+    )
     plt.xlabel("Confidence of 'yes' (%)")
     plt.ylabel("Number of predictions")
     plt.xlim(0, 100)
