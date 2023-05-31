@@ -78,17 +78,26 @@ def get_probability_positive(
     ]
 
     # Calculate probabilities.
+<<<<<<< HEAD
     logging.debug(f"{inputs['input_ids'].shape=}")
     logging.debug(f"{logits.shape=}")
+=======
+>>>>>>> dfaae2941d4b6d36c5242f2c054fc38c1e4db79a
     probs_labels = logits[label_ids]
 
     top_tokens = torch.topk(logits, 15).indices.tolist()
     top_tokens = [tokenizer.decode([token]) for token in top_tokens]
+<<<<<<< HEAD
     logging.debug(f"Top tokens: {top_tokens}")
 
     # Normalize probabilities so they sum to 1.
     probs_labels = F.softmax(probs_labels, dim=-1)
     logging.debug(f"{probs_labels=}")
+=======
+
+    # Normalize probabilities so they sum to 1.
+    probs_labels = F.softmax(probs_labels, dim=-1)
+>>>>>>> dfaae2941d4b6d36c5242f2c054fc38c1e4db79a
 
     # Calculate probability of the next token being a positive label.
     probs_positive = probs_labels[: len(labels_positive)].sum()
