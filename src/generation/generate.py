@@ -218,7 +218,7 @@ def generate_predictions(
             with torch.no_grad():
                 output_ids = model.generate(
                     input_ids,
-                    max_length=max(len(input_ids[0]), max_length),
+                    max_length=input_ids.shape[1] + max_length,
                     num_beams=3,
                     no_repeat_ngram_size=2,
                     early_stopping=True,
