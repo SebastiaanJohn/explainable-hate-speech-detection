@@ -1,36 +1,58 @@
 import argparse
 
 
+VALID_FILENAME_CHARS = (
+    "-=abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
+)
+
+
+def safeguard_filename(filename: str) -> str:
+    """Converts a filename to a safe filename by removing special characters.
+
+    Args:
+        filename (str): The filename to convert.
+
+    Returns:
+        str: The converted filename.
+    """
+    return "".join(c if c in VALID_FILENAME_CHARS else "-" for c in filename)
+
+
 def main(args: argparse.Namespace) -> None:
     model_choices = [
-        "LaMini-Cerebras-111M",
-        "LaMini-Cerebras-256M",
-        "LaMini-Cerebras-590M",
-        "LaMini-Cerebras-1.3B",
-        "LaMini-GPT-124M",
-        "LaMini-GPT-774M",
-        "LaMini-GPT-1.5B",
-        "LaMini-Neo-125M",
-        "LaMini-Neo-1.3B",
-        "LaMini-Flan-T5-77M",
-        "LaMini-Flan-T5-248M",
-        "LaMini-Flan-T5-783M",
-        "LaMini-T5-61M",
-        "LaMini-T5-223M",
-        "LaMini-T5-738M",
+        "MBZUAI/LaMini-Cerebras-111M",
+        "MBZUAI/LaMini-Cerebras-256M",
+        "MBZUAI/LaMini-Cerebras-590M",
+        "MBZUAI/LaMini-Cerebras-1.3B",
+        "MBZUAI/LaMini-GPT-124M",
+        "MBZUAI/LaMini-GPT-774M",
+        "MBZUAI/LaMini-GPT-1.5B",
+        "MBZUAI/LaMini-Neo-125M",
+        "MBZUAI/LaMini-Neo-1.3B",
+        "MBZUAI/LaMini-Flan-T5-77M",
+        "MBZUAI/LaMini-Flan-T5-248M",
+        "MBZUAI/LaMini-Flan-T5-783M",
+        "MBZUAI/LaMini-T5-61M",
+        "MBZUAI/LaMini-T5-223M",
+        "MBZUAI/LaMini-T5-738M",
     ]
     print("-" * 80)
     print()
     for model_choice in model_choices:
         print(
             "python3 slurm/job/generate_eval_job.py "
+            f"--model {model_choice} "
             f"--prompt_name {args.prompt_name}"
         )
     print()
     print("-" * 80)
     print()
     for model_choice in model_choices:
-        print(f"sbatch slurm/job/{model_choice}_{args.prompt_name}.sh")
+        job_filename = (
+            f"slurm/job/{safeguard_filename(model_choice)}_"
+            f"{safeguard_filename(args.prompt_name)}.sh"
+        )
+        print(f"sbatch {job_filename}")
     print("squeue -u $USER")
     print()
     print("-" * 80)
@@ -43,28 +65,6 @@ if __name__ == "__main__":
     )
 
     # Required arguments.
-    # Common values (I put them here so we can easily copy-paste them):
-    # MBZUAI/LaMini-T5-61M
-    # MBZUAI/LaMini-T5-223M
-    # MBZUAI/LaMini-T5-738M
-    # MBZUAI/LaMini-Flan-T5-77M
-    # MBZUAI/LaMini-Flan-T5-248M
-    # MBZUAI/LaMini-Flan-T5-783M
-    # MBZUAI/LaMini-Cerebras-111M
-    # MBZUAI/LaMini-Cerebras-256M
-    # MBZUAI/LaMini-Cerebras-590M
-    # MBZUAI/LaMini-Cerebras-1.3B
-    # MBZUAI/LaMini-Neo-125M
-    # MBZUAI/LaMini-Neo-1.3B
-    # MBZUAI/LaMini-GPT-124M
-    # MBZUAI/LaMini-GPT-774M
-    # MBZUAI/LaMini-GPT-1.5B
-    parser.add_argument(
-        "--model",
-        required=True,
-        type=str,
-        help="The name of the model to evaluate.",
-    )
     # Common values (I put them here so we can easily copy-paste them):
     # default_0shot_no_cot
     # default_0shot_cot_expl_first

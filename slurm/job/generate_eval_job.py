@@ -1,19 +1,44 @@
 import argparse
-import os
+
+
+VALID_FILENAME_CHARS = (
+    "-=abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
+)
+
+
+def safeguard_filename(filename: str) -> str:
+    """Converts a filename to a safe filename by removing special characters.
+
+    Args:
+        filename (str): The filename to convert.
+
+    Returns:
+        str: The converted filename.
+    """
+    return "".join(c if c in VALID_FILENAME_CHARS else "-" for c in filename)
 
 
 def main(args: argparse.Namespace) -> None:
+    out_filename = (
+        f"slurm/out/{safeguard_filename(args.model)}_"
+        f"{safeguard_filename(args.prompt_name)}_%A.txt"
+    )
+    job_name = (
+        f"{safeguard_filename(args.model)}_"
+        f"{safeguard_filename(args.prompt_name)}"
+    )
+
     # Create the job file.
     sh_file = rf"""#!/bin/bash
 
 #SBATCH --partition=gpu_titanrtx_shared_course
 #SBATCH --gres=gpu:1
-#SBATCH --job-name={args.model}_{args.prompt_name}
+#SBATCH --job-name={job_name}
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=2
 #SBATCH --time=20:00:00
 #SBATCH --mem=32000M
-#SBATCH --output=slurm/out/{args.model}_{args.prompt_name}_%A.txt
+#SBATCH --output={out_filename}
 
 module purge
 module load 2021
@@ -31,16 +56,19 @@ echo "Job finished fully."
     print(sh_file)
 
     # Create the job file.
-    filename = f"slurm/job/{args.model}_{args.prompt_name}.sh"
-    with open(filename, "w") as f:
+    job_filename = (
+        f"slurm/job/{safeguard_filename(args.model)}_"
+        f"{safeguard_filename(args.prompt_name)}.sh"
+    )
+    with open(job_filename, "w") as f:
         f.write(sh_file)
     print(
         "\n"
         + "-" * 80
         + "\n"
-        + f"A job file has been created in `{filename}`.\n"
+        + f"A job file has been created in `{job_filename}`.\n"
         + "Run the following command to submit the job:\n"
-        + f"$ sbatch {filename}"
+        + f"$ sbatch {job_filename}"
     )
 
 
