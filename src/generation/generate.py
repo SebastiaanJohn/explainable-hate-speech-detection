@@ -5,6 +5,11 @@ import logging
 import torch
 import torch.nn.functional as F
 from datasets import Dataset
+from generation.cache import (
+    determine_preds_cache_location,
+    retrieve_from_cache,
+    update_preds_cache,
+)
 from tqdm import tqdm
 from transformers import (
     AutoTokenizer,
@@ -14,17 +19,7 @@ from transformers import (
     PreTrainedTokenizer,
     T5ForConditionalGeneration,
 )
-
-
-# isort: off
-from utils import pred_type, log_prediction
-from generation.cache import (
-    determine_preds_cache_location,
-    retrieve_from_cache,
-    update_preds_cache,
-)
-
-# isort: on
+from utils import log_prediction, pred_type
 
 
 def get_probability_positive(
@@ -48,115 +43,49 @@ def get_probability_positive(
     Returns:
         float: The probability of the next token being a positive label.
     """
-    # Encode the prompt and run it through the model.
-    inputs = tokenizer.encode_plus(prompt, return_tensors="pt")
-    inputs = {key: val.to(device) for key, val in inputs.items()}
-
-    # Convert labels to ids.
-    label_ids = [
-        tokenizer.encode(label)[0]
-        for label in labels_positive + labels_negative
-    ]
-    label_ids_positive = set(label_ids[: len(labels_positive)])
-
-    # Define "bad words" to exclude all tokens except the labels.
-    bad_words_ids = [
-        [id] for id in range(tokenizer.vocab_size) if id not in label_ids
-    ]
-
-    # Generate a single next token.
+    # Encode prompt and run it through the model.
     with torch.no_grad():
-        outputs = model.generate(
-            **inputs,
-            max_length=inputs["input_ids"].shape[1] + 1,
-            min_length=inputs["input_ids"].shape[1] + 1,
-            num_beams=len(label_ids),
-            num_return_sequences=len(label_ids),
-            return_dict_in_generate=True,
-            output_scores=True,
-            bad_words_ids=bad_words_ids,
-            pad_token_id=tokenizer.pad_token_id,
-        )
-        logging.debug(f"{outputs.sequences[:, -1]=}")
+        if isinstance(model, T5ForConditionalGeneration):
+            # T5 and Flan-T5 models.
+            inputs = tokenizer.encode_plus(prompt, return_tensors="pt")
+            inputs = {key: val.to(device) for key, val in inputs.items()}
+            inputs["decoder_input_ids"] = tokenizer.encode(
+                tokenizer.pad_token, return_tensors="pt"
+            ).to(device)
+            logits = model(**inputs)["logits"][0, 0, :]
+        elif isinstance(model, GPT2LMHeadModel) \
+            or isinstance(model, GPTNeoForCausalLM):
+            # Cerebras and GPT models.
+            inputs = tokenizer.encode_plus(prompt, return_tensors="pt")
+            inputs = {key: val.to(device) for key, val in inputs.items()}
+            output_index = inputs["attention_mask"].sum() - 1
+            logits = model(**inputs)["logits"][0, output_index, :]
+        else:
+            raise ValueError("Unsupported model type.")
 
-        # Compute the transition scores (=logits for the generated tokens)
-        transition_scores = model.compute_transition_scores(
-            outputs.sequences,
-            outputs.scores,
-            outputs.beam_indices,
-            normalize_logits=False,
-        )[:, -1]
+    # Convert labels to token ids.
+    label_ids = [
+        tokenizer.encode(token)[0]
+        for token in labels_positive + labels_negative
+    ]
 
-    # Normalize the transition scores.
-    transition_scores = F.softmax(transition_scores, dim=0)
-    logging.debug(f"{label_ids=}")
-    logging.debug(f"{label_ids_positive=}")
-    logging.debug(f"{transition_scores=}")
+    # Calculate probabilities.
+    logging.debug(f"{inputs['input_ids'].shape=}")
+    logging.debug(f"{logits.shape=}")
+    probs_labels = logits[label_ids]
 
-    # Compute the probability of the next token being a positive label.
-    prob_positive = torch.sum(
-        transition_scores[
-            [
-                token in label_ids_positive
-                for token in outputs.sequences[:, -1].tolist()
-            ]
-        ]
-    ).item()
+    top_tokens = torch.topk(logits, 15).indices.tolist()
+    top_tokens = [tokenizer.decode([token]) for token in top_tokens]
+    logging.debug(f"Top tokens: {top_tokens}")
 
-    return prob_positive
+    # Normalize probabilities so they sum to 1.
+    probs_labels = F.softmax(probs_labels, dim=-1)
+    logging.debug(f"{probs_labels=}")
 
-    # with torch.no_grad():
-    #     if isinstance(model, T5ForConditionalGeneration):
-    #         # T5 and Flan-T5 models.
-    #         inputs = tokenizer.encode_plus(prompt, return_tensors="pt")
-    #         inputs = {key: val.to(device) for key, val in inputs.items()}
-    #         inputs["decoder_input_ids"] = tokenizer.encode(
-    #             tokenizer.pad_token, return_tensors="pt"
-    #         ).to(device)
-    #         logits = model(**inputs)["logits"][0, 0, :]
-    #     elif isinstance(model, GPT2LMHeadModel):
-    #         # Cerebras and GPT models.
-    #         inputs = tokenizer.encode_plus(prompt, return_tensors="pt")
-    #         inputs = {key: val.to(device) for key, val in inputs.items()}
-    #         outputs = model.generate(
-    #             **inputs,
-    #             max_length=inputs["input_ids"].shape[1] + 1,
-    #             return_dict_in_generate=True,
-    #             output_scores=True,
-    #         )
-    #         transition_scores = model.compute_transition_scores(
-    #             outputs.sequences, outputs.scores, normalize_logits=True
-    #         )
-    #         output_index = inputs["attention_mask"].sum() - 1
-    #         logits = model(**inputs)["logits"][0, output_index, :]
-    #     elif isinstance(model, GPTNeoForCausalLM):
-    #         # Neo models.
-    #         raise NotImplementedError("GPT-Neo models are not yet supported.")
-    #         # TODO Add support for GPT-Neo models.
-    #     else:
-    #         raise ValueError("Unsupported model type.")
+    # Calculate probability of the next token being a positive label.
+    probs_positive = probs_labels[: len(labels_positive)].sum()
 
-    # # Convert labels to token ids.
-    # label_ids = [
-    #     tokenizer.encode(token)[0]
-    #     for token in labels_positive + labels_negative
-    # ]
-
-    # # Calculate probabilities.
-    # logging.debug(f"{inputs['input_ids'].shape=}")
-    # logging.debug(f"{logits.shape=}")
-    # probs_labels = logits[label_ids]
-
-    # top_tokens = torch.topk(logits, 5).indices.tolist()
-    # top_tokens = [tokenizer.decode([token]) for token in top_tokens]
-    # logging.debug(f"Top tokens: {top_tokens}")
-
-    # # Normalize probabilities so they sum to 1.
-    # probs_labels = F.softmax(probs_labels, dim=-1)
-    # logging.debug(f"{probs_labels=}")
-
-    # # Calculate probability of the next token being a positive label.
-    # prob_positive = probs_labels[: len(labels_positive)].sum().item()
+    return probs_positive.item()
 
 
 def generate_predictions(
@@ -240,13 +169,10 @@ def generate_predictions(
         device = torch.device("cpu")
     logging.info(f"Using device: {device}")
 
-    # Load the tokenizer.
+    # Load the tokenizer and the model.
     logging.info("Loading tokenizer and model...")
     tokenizer = AutoTokenizer.from_pretrained(model)
-    tokenizer.pad_token_id = tokenizer.eos_token_id
     logging.info(f"Using tokenizer: {type(tokenizer).__name__}")
-
-    # Load the model.
     if "-T5-" in model:
         # T5 and Flan-T5 models.
         model = T5ForConditionalGeneration.from_pretrained(model).to(device)
@@ -292,11 +218,10 @@ def generate_predictions(
             with torch.no_grad():
                 output_ids = model.generate(
                     input_ids,
-                    max_length=len(input_ids) + max_length,
+                    max_length=max(len(input_ids[0]), max_length),
                     num_beams=3,
                     no_repeat_ngram_size=2,
                     early_stopping=True,
-                    pad_token_id=tokenizer.eos_token_id,
                 )
 
             # Extract the model's output prediction from the first response.

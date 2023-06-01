@@ -239,7 +239,7 @@ if __name__ == "__main__":
     # MBZUAI/LaMini-Neo-1.3B
     # MBZUAI/LaMini-GPT-124M
     # MBZUAI/LaMini-GPT-774M
-    # MBZUAI/LaMini-GPT-1.3B
+    # MBZUAI/LaMini-GPT-1.5B
     parser.add_argument(
         "--model",
         required=True,

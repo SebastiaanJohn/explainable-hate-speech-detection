@@ -1,5 +1,4 @@
-"""
-This file contains functions to store and retrieve previously generated
+"""This file contains functions to store and retrieve previously generated
 predictions.
 
 The predictions are stored in a cache file, which is a pickle file that
@@ -23,18 +22,33 @@ where
     {progress} is the amount of predictions that have been generated so far.
 """
 
+import io
 import logging
 import os
 import pickle
 import re
 from collections import defaultdict
 
-
-# isort: off
+import torch
 from utils import pred_type, safeguard_filename
 
-# isort: on
 
+class TorchUnpickler(pickle.Unpickler):
+    """Custom unpickler to load torch tensors from bytes."""
+    def find_class(self, module, name) -> type:
+        """Finds the class for the given module and name."""
+        if module == 'torch.storage' and name == '_load_from_bytes':
+            def custom_load_from_bytes(b):
+                return torch.load(io.BytesIO(b), map_location=torch.device('cpu'))
+            return custom_load_from_bytes
+        else:
+            return super().find_class(module, name)
+
+def custom_pickle_load(file) -> object:
+    """Loads a pickled object from a file."""
+    unpickler = TorchUnpickler(file)
+    obj = unpickler.load()
+    return obj
 
 def determine_preds_cache_location(
     prompt_template: str, model: str, split: str, dir_caches: str
@@ -97,7 +111,8 @@ def determine_preds_cache_location(
         for match in matches:
             curr_location = os.path.join(dir_caches, match.group(0))
             with open(curr_location, "rb") as f:
-                curr_prompt = pickle.load(f)["prompt"]
+                loaded_data = custom_pickle_load(f)
+                curr_prompt = loaded_data["prompt"]
                 if prev_prompt is None:
                     if curr_prompt == prompt_template:
                         cache_location = curr_location
@@ -143,7 +158,8 @@ def retrieve_from_cache(cache_location: str) -> list[pred_type]:
     if os.path.isfile(cache_location):
         logging.info(f"Using cached predictions from {cache_location}.")
         with open(cache_location, "rb") as f:
-            predictions = pickle.load(f)["predictions"]
+            loaded_data = custom_pickle_load(f)
+            predictions = loaded_data["predictions"]
         logging.info(f"Loaded {len(predictions)} predictions from cache.")
     else:
         logging.info("No cached predictions found.")
