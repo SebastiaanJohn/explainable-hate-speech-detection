@@ -173,7 +173,7 @@ def generate_predictions(
     logging.info("Loading tokenizer and model...")
     tokenizer = AutoTokenizer.from_pretrained(model)
     logging.info(f"Using tokenizer: {type(tokenizer).__name__}")
-    if "-T5-" in model:
+    if "-T5-" in model or "-t5-" in model:
         # T5 and Flan-T5 models.
         model = T5ForConditionalGeneration.from_pretrained(model).to(device)
     elif "-Cerebras-" in model or "-GPT-" in model:
