@@ -2,9 +2,11 @@
 
 import argparse
 import os
+import pickle
 import threading
 
 from datasets import Dataset
+from eval import evaluate, show_confidence_histogram, show_metrics
 from gpt.generate_gpt import get_chat_completion
 from tqdm import tqdm
 from tqdm.contrib.concurrent import thread_map
@@ -37,9 +39,8 @@ def append_predictions_to_file(
         prompt_type: The name of the prompt.
         dir_caches: The path to the directory where the cache files are stored.
     """
-    with open(f"{dir_caches}/{model}_{split}_{prompt_type}.jsonl", "a") as f:
-        for prediction in predictions:
-            f.write(f"{prediction}\n")
+    with open(f"{dir_caches}/{model}_{split}_{prompt_type}.pkl", "wb") as f:
+        pickle.dump(predictions, f)
 
 
 def generate_predictions(
@@ -113,10 +114,11 @@ def prompt_already_processed(
     """Checks if the prompt has already been processed."""
     with lock:
         with open(
-            f"{dir_caches}/{model}_{split}_{prompt_type}.jsonl", "r"
+            f"{dir_caches}/{model}_{split}_{prompt_type}.pkl", "rb"
         ) as f:
-            for line in f:
-                if prompt in line:
+            predictions = pickle.load(f)
+            for prediction in predictions:
+                if prompt == prediction["prompt"]:
                     return True
     return False
 
@@ -128,9 +130,10 @@ def main(args: argparse.Namespace) -> None:
     os.makedirs(args.dir_caches, exist_ok=True)
 
     # Ensure the cache file exists
-    cache_file_path = f"{args.dir_caches}/{args.model}_{args.split}_{args.prompt_name}.jsonl"
+    cache_file_path = f"{args.dir_caches}/{args.model}_{args.split}_{args.prompt_name}.pkl"
     if not os.path.isfile(cache_file_path):
-        open(cache_file_path, "w").close()
+        with open(cache_file_path, "wb") as f:
+            pickle.dump([], f)
 
     # Load the dataset.
     dataset_whole = get_social_bias_dataset(args.split, num_workers=args.num_workers)
@@ -156,6 +159,32 @@ def main(args: argparse.Namespace) -> None:
         ),
         datasets,
     )
+
+    # Load the predictions.
+    with open(f"{args.dir_caches}/{args.model}_{args.split}_{args.prompt_name}.pkl", "rb") as f:
+        predictions = pickle.load(f)
+    # Extract the labels.
+    labels_true = dataset["offensiveYN"]
+    labels_pred = [
+        "yes" if prediction["completion"] in ["yes", "Yes"]
+        else "no" for prediction in predictions
+        ]
+
+    # Evaluate the model.
+    metrics = evaluate(args.model, labels_true, labels_pred)
+
+    # Show the metrics.
+    show_metrics(metrics)
+
+    # Show the confidence histogram.
+    show_confidence_histogram(
+        labels_true,
+        labels_pred,
+        args.model,
+        args.prompt_name,
+        args.dir_images,
+    )
+
 
 if __name__ == "__main__":
     """Parses the arguments and runs the evaluation pipeline."""
