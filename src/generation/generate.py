@@ -222,6 +222,7 @@ def generate_predictions(
                     num_beams=3,
                     no_repeat_ngram_size=2,
                     early_stopping=True,
+                    pad_token_id=tokenizer.eos_token_id
                 )
 
             # Extract the model's output prediction from the first response.
