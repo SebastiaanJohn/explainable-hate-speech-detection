@@ -1,6 +1,10 @@
-# Integrating Chain-of-Thought Reasoning and Explainable AI for Enhanced Hate Speech Detection and Explanation Generation in Large Language Models
+# Explainable Hate Speech Detection with Chain-of-Thought Reasoning and Post-Hoc Explanations
 
-This repository investigates the integration of Chain-of-Thought (CoT) reasoning and Explainable AI (XAI) techniques for enhancing hate speech detection and explanation generation in large language models (LLMs). We aim to prompt LLMs to reason about potentially hateful content and produce a prediction or explanation, comparing inductive and deductive approaches for improved performance on hate speech datasets with full-text annotations. The primary dataset utilized for this project is SocialBiasFrames (Sap et al. 2019). We aim to provide human content moderators with more comprehensive and understandable explanations for detected hate speech, ultimately improving the moderation process and increasing the transparency of AI-driven decisions.
+This paper is an assignment for the [Advanced Topics in Computational Semantics](https://cl-illc.github.io/semantics-2023/) course at the University of Amsterdam. We aim to explore the role of bias and stereotypes in online language, explicitly focusing on hate speech detection. We leverage large language models (LLMs) trained with in-context learning, enhanced by incorporating explanations into the training process. These explanations can be integrated as pre-answer reasoning or post-answer explanations, each offering different benefits.
+
+Our research questions involve investigating whether we can prompt LLMs to reason about a potentially hateful post before or after making a prediction. We also examine the effectiveness of inductive versus deductive approaches on hate speech datasets, primarily using the SocialBiasFrames dataset. Our goal is to improve our understanding of hate speech detection in LLMs, ultimately contributing to developing more effective and accountable AI systems.
+
+You can read our full report [here](https://github.com/SebastiaanJohn/CoT-XAI-HateSpeechDetection)
 
 ## Requirements
 
