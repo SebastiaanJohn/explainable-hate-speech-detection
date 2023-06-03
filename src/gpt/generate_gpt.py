@@ -1,12 +1,13 @@
 """GPT API wrapper."""
 
 import logging
+import os
 
 import backoff
 import openai
 
 
-OPENAI_API_KEY = "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"
+OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 
 
 @backoff.on_exception(
@@ -78,6 +79,3 @@ def get_chat_completion(
     logging.debug(response["usage"])
 
     return response["choices"][0]["message"]["content"]
-
-if __name__ == "__main__":
-    print(get_chat_completion([{"role": "user", "content": "Hello, how are you?"}], "gpt-3.5-turbo", temperature=0.7, max_tokens=1000))
